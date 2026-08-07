@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root{
   --bg:#0d0c0c;--bg2:#161414;--bg3:#1e1b1b;--bg4:#262222;
@@ -185,6 +187,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .rank-row .metric{font-size:11px;color:var(--tx2);text-align:right;}
 .rank-row .metric b{display:block;color:var(--tx);font-size:13px;}
 .rank-row .score{font-weight:800;font-size:14px;text-align:right;}
+.evid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.evid-card{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;}
+.evid-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--tx3);background:var(--bg4);}
+.evid-thumb.cumple{color:var(--ok);background:var(--ok-d);}
+.evid-thumb.no-cumple{color:#e8815f;background:var(--er-d);}
+.evid-body{padding:12px 14px;}
+.evid-crit{font-size:12px;font-weight:700;margin-bottom:4px;}
+.evid-meta{font-size:11px;color:var(--tx3);line-height:1.5;}
 #loading-screen{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px;}
 #loading-screen .spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--bd);border-top-color:var(--acc);animation:rot .8s linear infinite;}
 @keyframes rot{to{transform:rotate(360deg)}}
@@ -244,15 +254,19 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="sb-sect">2 · Operación</div>
     <div class="ni" data-p="cobertura" onclick="goPage('cobertura',this)"><i class="fas fa-route"></i>Cobertura Operativa</div>
     <div class="ni" data-p="campo" onclick="goPage('campo',this)"><i class="fas fa-people-group"></i>Productividad del Equipo</div>
+    <div class="ni" data-p="jornada" onclick="goPage('jornada',this)"><i class="fas fa-user-clock"></i>Jornada y Asistencia</div>
+    <div class="ni" data-p="recorrido" onclick="goPage('recorrido',this)"><i class="fas fa-route"></i>Recorrido en Mapa</div>
     <div class="sb-sect">3 · Comercial</div>
     <div class="ni" data-p="disponibilidad" onclick="goPage('disponibilidad',this)"><i class="fas fa-boxes-stacked"></i>Disponibilidad Comercial</div>
     <div class="ni" data-p="ejecucion" onclick="goPage('ejecucion',this)"><i class="fas fa-clipboard-check"></i>Ejecución Comercial</div>
     <div class="ni" data-p="pricing" onclick="goPage('pricing',this)"><i class="fas fa-dollar-sign"></i>Precios</div>
     <div class="ni" data-p="competencia" onclick="goPage('competencia',this)"><i class="fas fa-chess-knight"></i>Inteligencia Competitiva</div>
     <div class="ni" data-p="cadenas" onclick="goPage('cadenas',this)"><i class="fas fa-ranking-star"></i>Ranking de cadenas y locales</div>
+    <div class="ni" data-p="evidencias" onclick="goPage('evidencias',this)"><i class="fas fa-camera-retro"></i>Evidencias Fotográficas</div>
     <div class="sb-sect">4 · Personas y stock</div>
     <div class="ni" data-p="oportunidad" onclick="goPage('oportunidad',this)"><i class="fas fa-hourglass-half"></i>Inventario y Vencimientos<span class="ni-badge acc" id="nb-venc">0</span></div>
     <div class="ni" data-p="incidencias" onclick="goPage('incidencias',this)"><i class="fas fa-triangle-exclamation"></i>Incidencias<span class="ni-badge" id="nb-incidencias" style="display:none">0</span></div>
+    <div class="ni" data-p="comisiones" onclick="goPage('comisiones',this)"><i class="fas fa-sack-dollar"></i>Comisiones e Incentivos</div>
     <div class="sb-sect">5 · Decisión</div>
     <div class="ni" data-p="plan" onclick="goPage('plan',this)"><i class="fas fa-lightbulb"></i>Oportunidades Comerciales</div>
     <div class="ni active" data-p="alertas" onclick="goPage('alertas',this)"><i class="fas fa-bell"></i>Centro de Alertas<span class="ni-badge" id="nb-alertas" style="display:none">0</span></div>
@@ -586,6 +600,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="card-hdr"><div class="card-title">Cobertura por ciudad</div><div class="card-sub">% de visitas planificadas que efectivamente se realizaron, por ciudad</div></div>
         <div class="chart-h"><canvas id="chart-cobertura-ciudad"></canvas></div>
       </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Cobertura por cadena</div><div class="card-sub">% de visitas planificadas que efectivamente se realizaron, por cadena</div></div>
+        <div class="chart-h"><canvas id="chart-cobertura-cadena"></canvas></div>
+      </div>
       <div class="tw">
         <div class="tf"><div class="card-title">Detalle por promotor</div></div>
         <table><thead><tr><th>Promotor</th><th>Supervisor</th><th>Ciudad</th><th>Locales asignados</th><th>Locales visitados</th><th>Cobertura</th><th>Tiempo prom.</th><th>Productividad</th></tr></thead>
@@ -619,7 +637,40 @@ tr:hover td{background:rgba(255,255,255,.02)}
         <div class="card-hdr"><div class="card-title">Índice por supervisor</div><div class="card-sub">Promedio de OSA y planograma de los locales a cargo de cada supervisor</div></div>
         <div id="ranking-supervisores"></div>
       </div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Ranking de Supervisores — Actividad de Equipo</div><div class="card-sub">Visitas, PDVs cubiertos, días activos y % de criterios cumplidos, por equipo de promotores a cargo</div></div>
+        <div id="ranking-supervisores-equipo"></div>
+      </div>
       <div class="alert ok"><i class="fas fa-user-check"></i><div id="insight-campo"></div></div>
+    </div>
+
+    <!-- ===================== JORNADA Y ASISTENCIA ===================== -->
+    <div class="page" data-page="jornada">
+      <div id="jornada-content"></div>
+    </div>
+
+    <!-- ===================== RECORRIDO EN MAPA ===================== -->
+    <div class="page" data-page="recorrido">
+      <div class="fbar">
+        <div class="flbl"><i class="fas fa-filter"></i>Filtrar</div>
+        <select id="f-recorrido-promotor"></select>
+        <input type="date" id="f-recorrido-fecha" style="background:var(--bg4);color:var(--tx);border:1px solid var(--bd2);border-radius:8px;padding:7px 10px;font-size:12.5px;">
+      </div>
+      <div class="kpi-grid-3" id="recorrido-kpis"></div>
+      <div class="card card-p">
+        <div class="card-hdr"><div class="card-title">Recorrido del día</div><div class="card-sub">Orden real de visitas a PDV, según hora de llegada registrada</div></div>
+        <div id="mapa-recorrido" style="height:480px;border-radius:var(--r2);overflow:hidden;"></div>
+      </div>
+    </div>
+
+    <!-- ===================== COMISIONES E INCENTIVOS ===================== -->
+    <div class="page" data-page="comisiones">
+      <div id="comisiones-content"></div>
+    </div>
+
+    <!-- ===================== EVIDENCIAS FOTOGRÁFICAS ===================== -->
+    <div class="page" data-page="evidencias">
+      <div id="evidencias-content"></div>
     </div>
 
     <!-- ===================== INCIDENCIAS ===================== -->
@@ -638,13 +689,51 @@ tr:hover td{background:rgba(255,255,255,.02)}
 </div>
 
 <script>
+let mapaRecorridoInicializado = false, leafletMap = null, leafletCapaRuta = null;
+
 function goPage(p, el){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   document.querySelector(`.page[data-page="${p}"]`).classList.add('active');
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('tb-title').textContent = el.textContent.trim();
+  if (p === "recorrido" && !mapaRecorridoInicializado && window.initMapaRecorrido) {
+    window.initMapaRecorrido();
+    mapaRecorridoInicializado = true;
+  }
 }
+
+// Coordenadas ficticias pero geográficamente plausibles (Gran Asunción /
+// Ciudad del Este), usadas solo para el mapa de Recorrido. Las claves deben
+// matchear exactamente locales.Nombre_Local de la pestaña `locales`.
+const PDV_COORDS = {
+  "Superseis San Lorenzo #1": { lat: -25.3406, lng: -57.5088 },
+  "Superseis San Lorenzo #2": { lat: -25.3358, lng: -57.5219 },
+  "Superseis Lambaré #3": { lat: -25.3467, lng: -57.6072 },
+  "Stock Lambaré #1": { lat: -25.3312, lng: -57.6215 },
+  "Stock Asunción #2": { lat: -25.2965, lng: -57.5799 },
+  "Stock Lambaré #3": { lat: -25.3389, lng: -57.6151 },
+  "Casa Rica Ciudad del Este #1": { lat: -25.5163, lng: -54.6119 },
+  "Casa Rica Capiatá #2": { lat: -25.3556, lng: -57.4453 },
+  "Casa Rica Ciudad del Este #3": { lat: -25.5089, lng: -54.6349 },
+  "Salemma Luque #1": { lat: -25.2695, lng: -57.4917 },
+  "Salemma Luque #2": { lat: -25.2751, lng: -57.4854 },
+  "Salemma Lambaré #3": { lat: -25.3421, lng: -57.6034 },
+  "Biggie Lambaré #1": { lat: -25.3298, lng: -57.6098 },
+  "Biggie Lambaré #2": { lat: -25.3367, lng: -57.6187 },
+  "Biggie Ciudad del Este #3": { lat: -25.5231, lng: -54.6178 },
+  "Arete Ciudad del Este #1": { lat: -25.5102, lng: -54.6402 },
+  "Arete Capiatá #2": { lat: -25.3489, lng: -57.4521 },
+  "Arete Luque #3": { lat: -25.2812, lng: -57.4966 },
+  "Despensa Don Ramón (Capiatá)": { lat: -25.3601, lng: -57.4389 },
+  "Almacén La Esquina (Fernando de la Mora)": { lat: -25.3287, lng: -57.5556 },
+  "Minimarket San Roque (Capiatá)": { lat: -25.3523, lng: -57.4487 },
+  "Despensa Doña Rosa (Luque)": { lat: -25.2669, lng: -57.4839 },
+  "Almacén Vecinal Itapúa (Capiatá)": { lat: -25.3578, lng: -57.4602 },
+  "Despensa El Progreso (San Lorenzo)": { lat: -25.3452, lng: -57.5147 },
+  "Minimarket Barrio Obrero (Ciudad del Este)": { lat: -25.5147, lng: -54.6087 },
+  "Almacén Don Justo (Ciudad del Este)": { lat: -25.4998, lng: -54.6256 },
+};
 
 const SHEET_URLS = {
   asistencia:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRo4CmnwJPirqJAMi4DF_1qMkPxdLZNHFn8S2si0_mj0tubXGsCZdSwU9aoj6JzNA/pub?gid=574287760&single=true&output=csv",
@@ -674,6 +763,11 @@ const SHEET_URLS_V2 = {
   config:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1726236970&single=true&output=csv",
   marcaciones:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1344690155&single=true&output=csv",
   incidenciasV2:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6NbybQFIMTD9s_UvurqKihBwfVMo49V05dM9SgMm6nLLJ-uGaX85KqfPn-yWr7w/pub?gid=1755448852&single=true&output=csv",
+  // TODO: reemplazar por el link de "Publicar en la web" (CSV) de la pestaña
+  // `promotores` una vez creada en el Sheet. Hasta entonces el fetch falla
+  // silenciosamente (patrón de tablas opcionales) y Comisiones/Ranking de
+  // Supervisores muestran un aviso de "sin datos" en vez de romper el resto.
+  promotores:      "PENDIENTE_PUBLICAR_PESTAÑA_PROMOTORES",
 };
 
 function fetchCSV(url) {
@@ -798,6 +892,17 @@ async function buildDashboard() {
     incidenciasV2 = (incV2C[0] && "ID_Incidencia" in incV2C[0]) ? incV2C : [];
   } catch (err) {
     console.warn("Fuentes V2 (Dashboard Ejecutivo) no disponibles, se recalcula todo desde las fuentes originales:", err);
+  }
+
+  // `promotores` en su propio try/catch (no en el Promise.all de arriba) para
+  // que, mientras esa pestaña todavía no esté publicada, no tumbe configV2 ni
+  // marcacionesV2 — solo deshabilita Comisiones y Ranking de Supervisores.
+  let promotores = [];
+  try {
+    const promC = clean(await fetchCSV(SHEET_URLS_V2.promotores));
+    promotores = (promC[0] && "ID_Promotor" in promC[0]) ? promC : [];
+  } catch (err) {
+    console.warn("Pestaña `promotores` no disponible todavía — Comisiones y Ranking de Supervisores quedan sin datos:", err);
   }
 
   const esquemaEsperado = {
@@ -1436,6 +1541,10 @@ async function buildDashboard() {
   const coberturaCiudad = groupRatio(detalle, d => (localMap[d.ID_Local] || {}).Ciudad, d => d.Estado_Visita === "Realizada");
   new Chart(document.getElementById("chart-cobertura-ciudad"), { type: "bar", data: { labels: coberturaCiudad.labels, datasets: [{ data: coberturaCiudad.values, backgroundColor: coberturaCiudad.values.map(v => colorForValue(v, 90, 75)), borderRadius: 6, maxBarThickness: 26 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11 } } } } } });
 
+  // cobertura por cadena (mismo cálculo que por ciudad, agrupado por Cadena)
+  const coberturaCadena = groupRatio(detalle, d => (localMap[d.ID_Local] || {}).Cadena, d => d.Estado_Visita === "Realizada");
+  new Chart(document.getElementById("chart-cobertura-cadena"), { type: "bar", data: { labels: coberturaCadena.labels, datasets: [{ data: coberturaCadena.values, backgroundColor: coberturaCadena.values.map(v => colorForValue(v, 90, 75)), borderRadius: 6, maxBarThickness: 26 }] }, options: { indexAxis: "y", plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 100, ...gridOpt() }, y: { grid: { display: false }, ticks: { color: "#f2eeee", font: { size: 11 } } } } } });
+
   // tabla detalle por promotor
   const promotoresIds = [...new Set(asistencia.map(a => a.ID_Promotor))];
   const tablaCobProm = document.getElementById("tabla-cobertura-promotor");
@@ -1954,6 +2063,270 @@ async function buildDashboard() {
       roiContent.innerHTML = html;
     }
   }
+
+  // Parámetros de configuración compartidos por Comisiones (pesos + metas),
+  // editables desde la pestaña `config` del Sheet sin tocar código.
+  const configMap = {};
+  configV2.forEach(c => { configMap[c["Parámetro"]] = num(c.Valor); });
+  const metaOSAGlobal = configMap["Meta_OSA"] ?? 90;
+  const metaPlanoGlobal = configMap["Meta_Planograma"] ?? 85;
+  const metaCoberturaGlobal = configMap["Meta_Cobertura"] ?? 95;
+  const metaPuntualidad = configMap["Meta_Puntualidad_%"] ?? 90;
+  const metaVencimientosMax = configMap["Meta_Vencimientos_Max_%"] ?? 3;
+
+  // ---------------- JORNADA Y ASISTENCIA ----------------
+  // Se calcula 100% a partir de `asistencia`, que ya trae Hora_Entrada,
+  // Inicio_Almuerzo, Fin_Almuerzo y Hora_Salida por jornada — no hace
+  // falta ninguna pestaña nueva para esta página.
+  const LIMITE_PUNTUALIDAD_HORAS = parseTiempoHoras("08:15");
+  const puntualidadPorPromotor = {}; // ID_Promotor -> % de entradas puntuales
+  const jornadaContent = document.getElementById("jornada-content");
+  if (jornadaContent) {
+    const fmtHora = (h) => { if (!h && h !== 0) return "—"; const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`; };
+    const porPromotorJ = {};
+    asistencia.forEach(a => {
+      if (!a.ID_Promotor) return;
+      if (!porPromotorJ[a.ID_Promotor]) porPromotorJ[a.ID_Promotor] = { nombre: a.Nombre_Promotor, dias: [] };
+      porPromotorJ[a.ID_Promotor].dias.push(a);
+    });
+    const filasJornada = Object.entries(porPromotorJ).map(([id, info]) => {
+      const diasConEntrada = info.dias.filter(d => d.Hora_Entrada);
+      const tardanzas = diasConEntrada.filter(d => parseTiempoHoras(d.Hora_Entrada) > LIMITE_PUNTUALIDAD_HORAS).length;
+      const pctPuntualidad = diasConEntrada.length ? round1(((diasConEntrada.length - tardanzas) / diasConEntrada.length) * 100) : 0;
+      const diasSinMarcar = info.dias.filter(d => d.Estado_Asistencia === "Presente" && !d.Hora_Entrada).length;
+      const almuerzos = info.dias.filter(d => d.Inicio_Almuerzo && d.Fin_Almuerzo);
+      const durAlmuerzoProm = almuerzos.length ? round1((almuerzos.reduce((a, d) => a + (parseTiempoHoras(d.Fin_Almuerzo) - parseTiempoHoras(d.Inicio_Almuerzo)), 0) / almuerzos.length) * 60) : 0;
+      const horaEntradaProm = diasConEntrada.length ? diasConEntrada.reduce((a, d) => a + parseTiempoHoras(d.Hora_Entrada), 0) / diasConEntrada.length : null;
+      const diasConSalida = info.dias.filter(d => d.Hora_Salida);
+      const horaSalidaProm = diasConSalida.length ? diasConSalida.reduce((a, d) => a + parseTiempoHoras(d.Hora_Salida), 0) / diasConSalida.length : null;
+      puntualidadPorPromotor[id] = pctPuntualidad;
+      return { id, nombre: info.nombre, nDias: info.dias.length, pctPuntualidad, tardanzas, diasSinMarcar, durAlmuerzoProm, horaEntradaProm, horaSalidaProm };
+    }).sort((a, b) => a.pctPuntualidad - b.pctPuntualidad);
+
+    const totalTardanzas = filasJornada.reduce((a, f) => a + f.tardanzas, 0);
+    const totalSinMarcar = filasJornada.reduce((a, f) => a + f.diasSinMarcar, 0);
+    const puntualidadPromEquipo = filasJornada.length ? round1(filasJornada.reduce((a, f) => a + f.pctPuntualidad, 0) / filasJornada.length) : 0;
+
+    let htmlJ = `<div class="kpi-grid-3">
+      <div class="kpi t-ok"><div class="kpi-lbl">Puntualidad promedio del equipo</div><div class="kpi-val">${puntualidadPromEquipo}%</div><div class="kpi-sub">entradas antes de las 08:15</div></div>
+      <div class="kpi t-wa"><div class="kpi-lbl">Tardanzas registradas</div><div class="kpi-val">${fmtInt(totalTardanzas)}</div><div class="kpi-sub">en el período relevado</div></div>
+      <div class="kpi t-er"><div class="kpi-lbl">Jornadas sin marcación de entrada</div><div class="kpi-val">${fmtInt(totalSinMarcar)}</div><div class="kpi-sub">presente sin hora de entrada registrada</div></div>
+    </div>
+    <div class="tw" style="margin-top:20px;">
+      <div class="tf"><div class="card-title">Jornada por promotor</div></div>
+      <table><thead><tr><th>Promotor</th><th>Jornadas</th><th>Puntualidad</th><th>Tardanzas</th><th>Entrada prom.</th><th>Salida prom.</th><th>Almuerzo prom.</th><th>Sin marcar</th></tr></thead><tbody>`;
+    filasJornada.forEach(f => {
+      htmlJ += `<tr><td>${f.nombre}</td><td>${f.nDias}</td><td><span class="pill ${f.pctPuntualidad >= 90 ? "ok" : f.pctPuntualidad >= 75 ? "wa" : "er"}">${f.pctPuntualidad}%</span></td><td>${f.tardanzas}</td><td>${fmtHora(f.horaEntradaProm)}</td><td>${fmtHora(f.horaSalidaProm)}</td><td>${f.durAlmuerzoProm} min</td><td>${f.diasSinMarcar}</td></tr>`;
+    });
+    htmlJ += `</tbody></table></div>`;
+    jornadaContent.innerHTML = htmlJ;
+  }
+
+  // ---------------- EVIDENCIAS FOTOGRÁFICAS ----------------
+  // Se deriva de `auditoria` (Material POP, cumplimiento de planograma y
+  // share of shelf por visita) — esos criterios ya se relevan hoy, solo
+  // faltaba mostrarlos como evidencia. Nunca se usan fotos reales: cada
+  // card lleva un ícono placeholder según el criterio.
+  const evidenciasContent = document.getElementById("evidencias-content");
+  if (evidenciasContent) {
+    const evidenciasDerivadas = [];
+    auditoria.forEach(a => {
+      const loc = localMap[a.ID_Local] || {};
+      const base = { fecha: a.Fecha, local: loc.Nombre_Local || a.ID_Local, ciudad: loc.Ciudad || "—" };
+      if (a.Estado_POP) {
+        evidenciasDerivadas.push({ ...base, criterio: "Material POP", cumple: a.Estado_POP === "Instalado - Buen estado", detalle: `${a.Material_POP || "Material POP"} — ${a.Estado_POP}`, icon: "fa-tags" });
+      }
+      if (a["Cumplimiento_Planograma_%"] !== undefined && a["Cumplimiento_Planograma_%"] !== "") {
+        const v = num(a["Cumplimiento_Planograma_%"]);
+        evidenciasDerivadas.push({ ...base, criterio: "Planograma", cumple: v >= metaPlanoGlobal, detalle: `${v}% de cumplimiento de planograma`, icon: "fa-table-cells" });
+      }
+      if (a["Share_of_Shelf_%"] !== undefined && a["Share_of_Shelf_%"] !== "") {
+        const v = num(a["Share_of_Shelf_%"]);
+        evidenciasDerivadas.push({ ...base, criterio: "Share of Shelf", cumple: v >= configMap["Meta_Share"], detalle: `${v}% de share of shelf`, icon: "fa-chart-pie" });
+      }
+    });
+    evidenciasDerivadas.sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+
+    const pintarEvidencias = (criterioFiltro) => {
+      const lista = (criterioFiltro ? evidenciasDerivadas.filter(e => e.criterio === criterioFiltro) : evidenciasDerivadas).slice(0, 60);
+      const grid = document.getElementById("evid-grid-wrap");
+      if (!grid) return;
+      grid.innerHTML = lista.map(e => `<div class="evid-card">
+          <div class="evid-thumb ${e.cumple ? "cumple" : "no-cumple"}"><i class="fas ${e.icon}"></i></div>
+          <div class="evid-body">
+            <div class="evid-crit"><span class="pill ${e.cumple ? "ok" : "er"}">${e.cumple ? "Cumple" : "No cumple"}</span> ${e.criterio}</div>
+            <div class="evid-meta">${e.local} · ${e.ciudad}<br>${e.fecha} — ${e.detalle}</div>
+          </div>
+        </div>`).join("");
+      document.getElementById("evid-count").textContent = `Mostrando ${lista.length} de ${criterioFiltro ? evidenciasDerivadas.filter(e => e.criterio === criterioFiltro).length : evidenciasDerivadas.length} evidencias`;
+    };
+
+    evidenciasContent.innerHTML = `<div class="fbar">
+        <div class="flbl"><i class="fas fa-filter"></i>Filtrar</div>
+        <select id="f-evid-criterio">
+          <option value="">Todos los criterios</option>
+          <option value="Material POP">Material POP</option>
+          <option value="Planograma">Planograma</option>
+          <option value="Share of Shelf">Share of Shelf</option>
+        </select>
+        <span id="evid-count" style="margin-left:auto;font-size:11px;color:var(--tx3);"></span>
+      </div>
+      <div class="evid-grid" id="evid-grid-wrap" style="margin-top:16px;"></div>`;
+    document.getElementById("f-evid-criterio").addEventListener("change", (e) => pintarEvidencias(e.target.value));
+    pintarEvidencias("");
+  }
+
+  // ---------------- COMISIONES E INCENTIVOS ----------------
+  // Bono variable calculado en vivo a partir de los pesos de `config`
+  // (Peso_Puntualidad_%, Peso_Cobertura_%, Peso_Disponibilidad_%,
+  // Peso_Planograma_%, Peso_Vencimientos_%) cruzados con KPIs que el
+  // dashboard ya calcula. Cambiar un peso en el Sheet y recargar alcanza
+  // para ver el bono recalculado, sin tocar código.
+  const comisionesContent = document.getElementById("comisiones-content");
+  if (comisionesContent) {
+    if (!promotores.length) {
+      comisionesContent.innerHTML = `<div class="alert wa"><i class="fas fa-circle-info"></i><div>Todavía no está publicada la pestaña <b>promotores</b> del Sheet (sueldo base, bono máximo y supervisor de cada promotor). En cuanto se publique, esta sección calcula el bono automáticamente.</div></div>`;
+    } else {
+      const pesos = {
+        Puntualidad: configMap["Peso_Puntualidad_%"] ?? 20,
+        Cobertura: configMap["Peso_Cobertura_%"] ?? 20,
+        Disponibilidad: configMap["Peso_Disponibilidad_%"] ?? 20,
+        Planograma: configMap["Peso_Planograma_%"] ?? 20,
+        Vencimientos: configMap["Peso_Vencimientos_%"] ?? 20,
+      };
+      const coberturaPorId = {}; asistencia.forEach(a => { if (!a.ID_Promotor) return; if (!coberturaPorId[a.ID_Promotor]) coberturaPorId[a.ID_Promotor] = []; coberturaPorId[a.ID_Promotor].push(num(a["Cobertura_%"])); });
+
+      const filasComision = promotores.map(p => {
+        const id = p.ID_Promotor;
+        const localesDelProm = new Set(detalle.filter(d => d.ID_Promotor === id && d.Estado_Visita === "Realizada").map(d => d.ID_Local));
+        const releTerr = relevamiento.filter(r => localesDelProm.has(r.ID_Local));
+        const audiTerr = auditoria.filter(a => localesDelProm.has(a.ID_Local));
+        const cobArr = coberturaPorId[id] || [];
+
+        const valPuntualidad = puntualidadPorPromotor[id] ?? null;
+        const valCobertura = cobArr.length ? round1(cobArr.reduce((a, b) => a + b, 0) / cobArr.length) : null;
+        const valOSA = releTerr.length ? round1((releTerr.filter(r => osaOf(r) === "Disponible").length / releTerr.length) * 100) : null;
+        const valPlano = audiTerr.length ? round1(audiTerr.reduce((a, r) => a + num(r["Cumplimiento_Planograma_%"]), 0) / audiTerr.length) : null;
+        const valAveriaPct = releTerr.length ? round1((releTerr.filter(r => num(r.Unidades_Averiadas) > 0).length / releTerr.length) * 100) : null;
+
+        const logro = (val, meta) => val == null ? null : Math.max(0, Math.min(100, round1((val / meta) * 100)));
+        const logroInvertido = (val, metaMax) => val == null ? null : (val <= metaMax ? 100 : Math.max(0, round1(100 - (val - metaMax) * 20)));
+
+        const logros = {
+          Puntualidad: logro(valPuntualidad, metaPuntualidad),
+          Cobertura: logro(valCobertura, metaCoberturaGlobal),
+          Disponibilidad: logro(valOSA, metaOSAGlobal),
+          Planograma: logro(valPlano, metaPlanoGlobal),
+          Vencimientos: logroInvertido(valAveriaPct, metaVencimientosMax),
+        };
+        let score = 0, pesoTotalConDatos = 0;
+        Object.entries(pesos).forEach(([k, peso]) => { if (logros[k] != null) { score += peso * logros[k]; pesoTotalConDatos += peso; } });
+        score = pesoTotalConDatos > 0 ? round1(score / pesoTotalConDatos) : 0;
+        const bono = Math.round(num(p.Bono_Maximo_Gs) * score / 100);
+        const sueldoTotal = num(p.Sueldo_Base_Gs) + bono;
+        return { id, nombre: p.Nombre_Promotor, supervisor: p.Supervisor, valPuntualidad, valCobertura, valOSA, valPlano, valAveriaPct, score, bono, sueldoTotal };
+      }).sort((a, b) => b.score - a.score);
+
+      const pctOrGuion = (v) => v == null ? "—" : `${v}%`;
+      let htmlC = `<div class="kpi-grid-3">
+        <div class="kpi t-acc"><div class="kpi-lbl">Bono total del equipo</div><div class="kpi-val">${fmtGs(filasComision.reduce((a, f) => a + f.bono, 0))}</div><div class="kpi-sub">sumando el bono variable de los ${filasComision.length} promotores</div></div>
+        <div class="kpi t-ok"><div class="kpi-lbl">Score promedio del equipo</div><div class="kpi-val">${filasComision.length ? round1(filasComision.reduce((a, f) => a + f.score, 0) / filasComision.length) : 0}%</div><div class="kpi-sub">cumplimiento ponderado de los 5 componentes</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Pesos vigentes</div><div class="kpi-val" style="font-size:14px;">P ${pesos.Puntualidad}% · C ${pesos.Cobertura}% · D ${pesos.Disponibilidad}% · Pg ${pesos.Planograma}% · V ${pesos.Vencimientos}%</div><div class="kpi-sub">editables en la pestaña config del Sheet</div></div>
+      </div>
+      <div class="tw" style="margin-top:20px;">
+        <div class="tf"><div class="card-title">Comisión por promotor</div></div>
+        <table><thead><tr><th>Promotor</th><th>Supervisor</th><th>Puntualidad</th><th>Cobertura</th><th>Disponibilidad</th><th>Planograma</th><th>% Avería territorio</th><th>Score</th><th>Bono</th><th>Sueldo total</th></tr></thead><tbody>`;
+      filasComision.forEach(f => {
+        htmlC += `<tr><td>${f.nombre}</td><td>${f.supervisor || "—"}</td><td>${pctOrGuion(f.valPuntualidad)}</td><td>${pctOrGuion(f.valCobertura)}</td><td>${pctOrGuion(f.valOSA)}</td><td>${pctOrGuion(f.valPlano)}</td><td>${pctOrGuion(f.valAveriaPct)}</td><td><span class="pill ${f.score >= 90 ? "ok" : f.score >= 70 ? "wa" : "er"}">${f.score}%</span></td><td>${fmtGs(f.bono)}</td><td>${fmtGs(f.sueldoTotal)}</td></tr>`;
+      });
+      htmlC += `</tbody></table></div>
+      <div class="alert acc" style="margin-top:20px;"><i class="fas fa-circle-info"></i><div>Score = promedio ponderado de 5 componentes contra sus metas (Puntualidad y Cobertura desde asistencia, Disponibilidad y Planograma desde el territorio de PDVs del promotor, Control de Vencimientos desde el % de relevamientos con averías en ese mismo territorio). Bono = Bono Máximo × Score. Los pesos se editan en la pestaña <b>config</b> del Sheet — cambiar un valor ahí y recargar recalcula todo, sin tocar código.</div></div>`;
+      comisionesContent.innerHTML = htmlC;
+    }
+  }
+
+  // ---------------- RANKING DE SUPERVISORES — ACTIVIDAD DE EQUIPO ----------------
+  // Distinto del "Índice por supervisor" ya existente (que mide OSA/planograma
+  // de los locales a cargo): esto mide actividad del equipo de promotores.
+  const rankSupEquipoWrap = document.getElementById("ranking-supervisores-equipo");
+  if (rankSupEquipoWrap) {
+    if (!promotores.length) {
+      rankSupEquipoWrap.innerHTML = `<div class="alert wa"><i class="fas fa-circle-info"></i><div>Todavía no está publicada la pestaña <b>promotores</b> del Sheet.</div></div>`;
+    } else {
+      const porSupervisor = {};
+      promotores.forEach(p => { if (!porSupervisor[p.Supervisor]) porSupervisor[p.Supervisor] = []; porSupervisor[p.Supervisor].push(p.ID_Promotor); });
+      const filasSup = Object.entries(porSupervisor).map(([sup, ids]) => {
+        const visitasEquipo = detalle.filter(d => ids.includes(d.ID_Promotor) && d.Estado_Visita === "Realizada");
+        const pdvsUnicos = new Set(visitasEquipo.map(d => d.ID_Local)).size;
+        const diasActivos = new Set(asistencia.filter(a => ids.includes(a.ID_Promotor) && a.Estado_Asistencia === "Presente").map(a => a.Fecha)).size;
+        const audiEquipo = auditoria.filter(a => ids.includes(a.ID_Promotor));
+        const pctCriterios = audiEquipo.length ? round1((audiEquipo.filter(a => num(a["Cumplimiento_Planograma_%"]) >= metaPlanoGlobal).length / audiEquipo.length) * 100) : 0;
+        return { sup, nPromotores: ids.length, visitas: visitasEquipo.length, pdvsUnicos, diasActivos, pctCriterios };
+      }).sort((a, b) => b.visitas - a.visitas);
+
+      rankSupEquipoWrap.innerHTML = filasSup.map((f, i) => `<div class="rank-row">
+          <div class="pos">#${i + 1}</div>
+          <div><div class="name">${f.sup}</div><div style="font-size:10.5px;color:var(--tx3);">${f.nPromotores} promotores a cargo</div></div>
+          <div class="metric">PDVs<b>${f.pdvsUnicos}</b></div>
+          <div class="metric">Días activos<b>${f.diasActivos}</b></div>
+          <div class="score" style="color:${f.pctCriterios >= metaPlanoGlobal ? "var(--ok)" : "var(--wa)"}">${f.pctCriterios}%</div>
+        </div>`).join("");
+    }
+  }
+
+  // ---------------- RECORRIDO EN MAPA (Leaflet) ----------------
+  // Se deriva de `detalle` (ID_Local, Nombre_Local, Orden_Visita, Hora_Llegada
+  // por visita) — no hace falta ninguna pestaña nueva. El mapa se inicializa
+  // recién al entrar a la página (ver goPage), nunca con el contenedor oculto.
+  window.initMapaRecorrido = function initMapaRecorrido() {
+    const selProm = document.getElementById("f-recorrido-promotor");
+    const inpFecha = document.getElementById("f-recorrido-fecha");
+    if (!selProm || !inpFecha) return;
+
+    const idsConVisitas = [...new Set(detalle.filter(d => d.Estado_Visita === "Realizada").map(d => d.ID_Promotor))].sort();
+    selProm.innerHTML = idsConVisitas.map(id => { const n = (detalle.find(d => d.ID_Promotor === id) || {}).Nombre_Promotor || id; return `<option value="${id}">${n}</option>`; }).join("");
+
+    leafletMap = L.map('mapa-recorrido').setView([-25.30, -57.60], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', maxZoom: 18 }).addTo(leafletMap);
+    leafletCapaRuta = L.layerGroup().addTo(leafletMap);
+
+    const pintarRecorrido = (idPromotor, fecha) => {
+      leafletCapaRuta.clearLayers();
+      const kpisWrap = document.getElementById("recorrido-kpis");
+      const visitas = detalle.filter(d => d.ID_Promotor === idPromotor && d.Fecha === fecha && d.Estado_Visita === "Realizada").sort((a, b) => num(a.Orden_Visita) - num(b.Orden_Visita));
+      if (!visitas.length) {
+        kpisWrap.innerHTML = `<div class="alert wa" style="grid-column:1/-1;"><i class="fas fa-circle-info"></i><div>No hay visitas realizadas para ese promotor en esa fecha.</div></div>`;
+        return;
+      }
+      const puntos = [];
+      visitas.forEach((v, i) => {
+        const coord = PDV_COORDS[v.Nombre_Local];
+        if (!coord) { console.warn(`Sin coordenadas para "${v.Nombre_Local}" — se omite del mapa.`); return; }
+        puntos.push([coord.lat, coord.lng]);
+        L.marker([coord.lat, coord.lng], { icon: L.divIcon({ className: "", html: `<div style="background:#d4a24c;color:#1a1206;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);">${i + 1}</div>`, iconSize: [26, 26] }) })
+          .bindPopup(`<b>${v.Nombre_Local}</b><br>Llegada: ${v.Hora_Llegada || "—"} · Salida: ${v.Hora_Salida || "—"}`)
+          .addTo(leafletCapaRuta);
+      });
+      if (puntos.length > 1) L.polyline(puntos, { color: "#d4a24c", weight: 3, opacity: .8, dashArray: "6,6" }).addTo(leafletCapaRuta);
+      if (puntos.length) leafletMap.fitBounds(puntos, { padding: [30, 30] });
+
+      const duraciones = visitas.map(v => num(v.Duración_Minutos)).filter(v => v > 0);
+      const durProm = duraciones.length ? round1(duraciones.reduce((a, b) => a + b, 0) / duraciones.length) : 0;
+      kpisWrap.innerHTML = `<div class="kpi t-ok"><div class="kpi-lbl">PDVs visitados ese día</div><div class="kpi-val">${visitas.length}</div></div>
+        <div class="kpi t-acc"><div class="kpi-lbl">Primera llegada</div><div class="kpi-val">${visitas[0].Hora_Llegada || "—"}</div></div>
+        <div class="kpi t-wa"><div class="kpi-lbl">Duración prom. por visita</div><div class="kpi-val">${durProm} min</div></div>`;
+    };
+
+    const fechasPromotorActual = () => [...new Set(detalle.filter(d => d.ID_Promotor === selProm.value && d.Estado_Visita === "Realizada").map(d => d.Fecha))].sort();
+    const actualizarFechaYPintar = () => {
+      const fechas = fechasPromotorActual();
+      if (fechas.length) { inpFecha.min = fechas[0]; inpFecha.max = fechas[fechas.length - 1]; if (!fechas.includes(inpFecha.value)) inpFecha.value = fechas[0]; }
+      pintarRecorrido(selProm.value, inpFecha.value);
+    };
+    selProm.addEventListener("change", actualizarFechaYPintar);
+    inpFecha.addEventListener("change", () => pintarRecorrido(selProm.value, inpFecha.value));
+    if (idsConVisitas.length) actualizarFechaYPintar();
+  };
 
   // Llamada inicial del Módulo 1 (Dashboard Ejecutivo) — se hace acá porque
   // reutiliza el motor de alertas y de insights, ya calculados en este punto.
