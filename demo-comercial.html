@@ -1,0 +1,2573 @@
+<!-- NOVA CONSUMO — DEMO COMERCIAL +Marka — Datos 100% ficticios (Paraguay) -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Consumo — Panel de Relevamiento de Campo | Demo +Marka</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --bg:#181514;--bg2:#221E1D;--bg3:#2A2624;--bg4:#332E2C;
+  --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.14);
+  --tx:#f2eeee;--tx2:#9c9494;--tx3:#5a5252;
+  --ok:#3AAFA0;--ok-d:rgba(58,175,160,.14);
+  --er:#e84a55;--er-d:rgba(232,74,85,.14);
+  --wa:#e8a045;--wa-d:rgba(232,160,69,.14);
+  --bl:#7C93A8;--bl-d:rgba(124,147,168,.14);
+  --vi:#9C8FA6;--vi-d:rgba(156,143,166,.14);
+  --br:#c98a4b;--br-d:rgba(201,138,75,.16);
+  --brand:#C41E24;--brand2:#E0272E;--brand-d:rgba(196,30,36,.16);
+  --r2:8px;--sw:250px;--hh:60px;
+  --sh:0 8px 28px rgba(0,0,0,.5);--tr:.18s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;overflow:hidden}
+button,input,select{font-family:'Outfit',sans-serif;font-size:13px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+body.light{--bg:#eef1f5;--bg2:#ffffff;--bg3:#f5f7fa;--bg4:#e8ecf1;--bd:rgba(15,20,40,.09);--bd2:rgba(15,20,40,.16);--tx:#111317;--tx2:#454a55;--tx3:#8c919c;--sh:0 4px 20px rgba(15,20,40,.1),0 1px 4px rgba(15,20,40,.06);}
+body.light ::-webkit-scrollbar-thumb{background:rgba(15,20,40,.18)}
+
+.app{display:flex;height:100vh}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{width:var(--sw);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:18px 14px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 6px 18px;border-bottom:1px solid var(--bd);margin-bottom:14px}
+.brand-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex-shrink:0;box-shadow:0 4px 14px var(--brand-d)}
+.brand-name{font-weight:800;font-size:15px;letter-spacing:-.2px}
+.brand-sub{font-size:10.5px;color:var(--tx3);font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.demo-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--brand2);background:var(--brand-d);border:1px solid var(--brand-d);padding:3px 8px;border-radius:20px;margin-top:8px}
+.nav{display:flex;flex-direction:column;gap:2px;margin-top:2px}
+.ni{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--r2);color:var(--tx2);font-weight:600;font-size:13px;cursor:pointer;transition:var(--tr);white-space:nowrap}
+.ni i{width:16px;text-align:center;font-size:14px}
+.ni:hover{background:var(--bg3);color:var(--tx)}
+.ni.active{background:var(--brand-d);color:var(--brand2)}
+.ni-badge{margin-left:auto;background:var(--er);color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:10px}
+.nav-sect{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--tx3);margin:16px 8px 6px}
+.sidebar-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--bd)}
+.swatches{display:flex;gap:7px;margin:8px 0 12px}
+.swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:var(--tr)}
+.swatch.active{border-color:var(--tx);transform:scale(1.12)}
+.foot-note{font-size:10.5px;color:var(--tx3);line-height:1.5}
+.theme-toggle{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:8px;border-radius:var(--r2);background:var(--bg3);color:var(--tx2);border:1px solid var(--bd);cursor:pointer;font-weight:600;margin-bottom:10px}
+.theme-toggle:hover{color:var(--tx)}
+.prefs-panel{margin-bottom:10px}
+.prefs-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--bd);color:var(--tx2);font-weight:600;font-size:12.5px;cursor:pointer;list-style:none;user-select:none}
+.prefs-summary::-webkit-details-marker{display:none}
+.prefs-summary:hover{color:var(--tx)}
+.prefs-summary i.chev{transition:transform .18s ease;font-size:10px;color:var(--tx3)}
+.prefs-panel[open] .prefs-summary{border-radius:var(--r2) var(--r2) 0 0}
+.prefs-panel[open] .prefs-summary i.chev{transform:rotate(180deg)}
+.prefs-body{padding:12px 10px 4px;border:1px solid var(--bd);border-top:none;border-radius:0 0 var(--r2) var(--r2)}
+
+/* ---------- MAIN ---------- */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:var(--hh);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--bd);background:var(--bg2)}
+.page-title{font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
+.page-title i{color:var(--brand2)}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.tb-btn{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--bd);color:var(--tx2);cursor:pointer;font-weight:600;transition:var(--tr)}
+.tb-btn:hover{color:var(--tx);border-color:var(--bd2)}
+.tb-btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.tb-btn.primary:hover{background:var(--brand2)}
+
+.fbar{display:flex;align-items:center;gap:10px;padding:12px 24px;border-bottom:1px solid var(--bd);flex-wrap:wrap;background:var(--bg)}
+.fbar select,.fbar input[type=text]{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:7px 10px;border-radius:8px;outline:none}
+.fbar select:hover,.fbar input:hover{border-color:var(--bd2)}
+.fbar-label{font-size:11.5px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.3px;display:flex;align-items:center;gap:5px}
+.fbar-chip{display:flex;align-items:center;gap:6px;background:var(--brand-d);color:var(--brand2);border:1px solid var(--brand-d);padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer}
+
+.content{flex:1;overflow-y:auto;padding:22px 24px 40px}
+.banner{display:flex;align-items:center;gap:10px;background:var(--brand-d);border:1px solid var(--brand-d);color:var(--brand2);padding:10px 16px;border-radius:var(--r2);font-size:12.5px;font-weight:600;margin-bottom:18px}
+.banner i{font-size:14px}
+
+.grid{display:grid;gap:16px}
+.grid-kpi{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.grid-2{grid-template-columns:2fr 1fr}
+.grid-2e{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1100px){.grid-2,.grid-3,.grid-4,.grid-2e{grid-template-columns:1fr}}
+
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:18px;position:relative}
+.card-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px}
+.card-title{font-size:14px;font-weight:700}
+.card-sub{font-size:11.5px;color:var(--tx3);margin-top:2px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.sm{height:200px}
+
+.kpi{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;transition:var(--tr)}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.kpi-lbl{font-size:11.5px;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.kpi-val{font-size:24px;font-weight:800;margin-top:6px;letter-spacing:-.5px}
+.kpi-sub{font-size:11px;color:var(--tx3);margin-top:4px}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:2px}
+.ico-chip{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.kpi-link{font-size:10.5px;font-weight:700;color:var(--tx3);margin-top:8px;display:flex;align-items:center;gap:4px}
+.kpi.clickable:hover .kpi-link{color:var(--brand2)}
+.kpi-link i{font-size:9px}
+.card-nav-hint{font-size:10.5px;font-weight:700;color:var(--brand2);white-space:nowrap;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.card-nav-hint i{font-size:9px}
+
+/* ---------- Tarjeta KPI expandible (kpix) ---------- */
+.kpix{position:relative;border-radius:12px;padding:16px 18px 18px;border:1px solid var(--bd);transition:transform var(--tr), box-shadow var(--tr)}
+.kpix:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.35)}
+.kpix.expandable{cursor:pointer}
+.kpix.expandable.open{cursor:default;grid-column:1/-1}
+.kpix-teal{background:var(--bg2);--kpix-c:var(--ok);--kpix-cd:var(--ok-d)}
+.kpix-amber{background:var(--bg2);--kpix-c:var(--wa);--kpix-cd:var(--wa-d)}
+.kpix-blue{background:var(--bg2);--kpix-c:var(--bl);--kpix-cd:var(--bl-d)}
+.kpix-violet{background:var(--bg2);--kpix-c:var(--vi);--kpix-cd:var(--vi-d)}
+.kpix-accent{background:var(--bg2);--kpix-c:var(--brand2);--kpix-cd:var(--brand-d)}
+.kpix-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.kpix-lbl{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--tx2)}
+.kpix-ico-chip{color:var(--kpix-c);background:var(--kpix-cd)}
+.kpix-val{font-size:21px;font-weight:900;margin-top:10px;color:var(--kpix-c);letter-spacing:-.3px}
+.kpix-foot{font-size:11px;color:var(--tx3);margin-top:4px}
+.kpix-hint{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--tx3);margin-top:12px}
+.kpix-hint i{font-size:9px;transition:transform var(--tr)}
+.kpix.open .kpix-hint i{transform:rotate(180deg)}
+.kpix-panel{max-height:0;overflow:hidden;transition:max-height .28s ease}
+.kpix.open .kpix-panel{max-height:900px}
+.kpix-panel-inner{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}
+.kpix-info{position:absolute;bottom:10px;right:10px;width:17px;height:17px;border-radius:50%;background:var(--bg4);color:var(--tx3);font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:help;font-style:italic;font-family:Georgia,serif}
+.kpix-tooltip{position:absolute;bottom:24px;right:0;background:#161414;color:#fff;font-size:11px;font-weight:500;padding:8px 10px;border-radius:8px;width:190px;line-height:1.4;box-shadow:0 8px 20px rgba(0,0,0,.4);opacity:0;visibility:hidden;transform:translateY(4px);transition:var(--tr);z-index:20;pointer-events:none}
+.kpix-info:hover .kpix-tooltip{opacity:1;visibility:visible;transform:translateY(0)}
+
+/* ---------- Precios por marca (panel nuestro vs. competencia) ---------- */
+.pmarca-lbl{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+.pmarca-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pmarca-pill{cursor:pointer;opacity:.55}
+.pmarca-pill.active{opacity:1}
+.pmarca-box{border-left:3px solid var(--bd);border-radius:8px;background:var(--bg3);padding:12px 14px;margin-bottom:12px}
+.pmarca-box.own{border-left-color:var(--ok)}
+.pmarca-box.comp{border-left-color:var(--er)}
+.pmarca-tbl{max-height:320px;overflow-y:auto}
+
+/* ---------- Resumen de clústeres (Resumen ejecutivo) ---------- */
+.cljcard{background:var(--bg2);border-radius:16px;padding:18px 20px;color:var(--tx);border:1px solid var(--bd)}
+.cljcard-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.cljcard-title{font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cljbadge-alta{background:#F8E0E0;color:#A82E2E;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px}
+.cljcard-pct{font-size:22px;font-weight:900}
+.cljbar-track{height:8px;border-radius:6px;background:var(--bd);overflow:hidden;margin-bottom:10px}
+.cljbar-fill{height:100%;border-radius:6px;transition:width .3s ease}
+.cljcard-info{font-size:12px;color:var(--tx3);margin-bottom:12px}
+.cljcard-toggle{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--tx);cursor:pointer;user-select:none}
+.cljcard-toggle i{transition:transform .18s ease;font-size:10px}
+.cljcard-toggle.open i{transform:rotate(180deg)}
+.cljcard-panel{max-height:0;overflow:hidden;transition:max-height .28s ease}
+.cljcard-panel.open{max-height:420px}
+.cljcard-table{width:100%;margin-top:10px;font-size:12px;border-collapse:collapse}
+.cljcard-table th{text-align:left;color:var(--tx3);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.2px;padding:6px 4px;border-bottom:1px solid var(--bd);white-space:nowrap}
+.cljcard-table td{padding:7px 4px;border-bottom:1px solid var(--bd);color:var(--tx);white-space:nowrap}
+.cljcard-table tr:last-child td{border-bottom:none}
+.cljcard-link{display:inline-flex;align-items:center;gap:5px;color:#0B66C3;font-size:12px;font-weight:700;text-decoration:none;margin-top:12px;cursor:pointer}
+
+/* ---------- Ofertas y Promociones ---------- */
+.ofr-card{background:var(--bg2);border-radius:16px;padding:18px 20px;color:var(--tx);border:1px solid var(--bd);position:relative}
+.ofr-title{font-size:15px;font-weight:800;margin-bottom:2px}
+.ofr-sub{font-size:12px;color:var(--tx3);margin-bottom:14px}
+.ofr-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.ofr-badge-propia{background:#DCF0DD;color:#1F7A3D}
+.ofr-badge-local{background:#E3E9F1;color:#3B5C7A}
+.ofr-badge-activa{background:#DCF0DD;color:#1F7A3D}
+.ofr-badge-provencer{background:#F7EAD0;color:#8A5A0D}
+.ofr-badge-vencida{background:#F8E0E0;color:#A82E2E}
+.ofr-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.ofr-photo-card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease}
+.ofr-photo-card:hover{transform:translateY(-3px);box-shadow:var(--sh)}
+.ofr-photo-body{padding:11px 13px}
+.ofr-photo-pdv{font-weight:700;font-size:12.5px;margin-bottom:2px;color:var(--tx)}
+.ofr-photo-meta{font-size:10.5px;color:var(--tx3);margin-bottom:8px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--tx3);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.3px;padding:9px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.tbl-wrap{overflow-x:auto}
+
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge.ok{background:var(--ok-d);color:var(--ok)}
+.badge.er{background:var(--er-d);color:var(--er)}
+.badge.wa{background:var(--wa-d);color:var(--wa)}
+.badge.bl{background:var(--bl-d);color:var(--bl)}
+.badge.vi{background:var(--vi-d);color:var(--vi)}
+.badge.br{background:var(--br-d);color:var(--br)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot.ok{background:var(--ok)}.dot.er{background:var(--er)}.dot.wa{background:var(--wa)}.dot.bl{background:var(--bl)}.dot.vi{background:var(--vi)}
+
+.evid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.evid-card{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:var(--tr)}
+.evid-card:hover{transform:translateY(-3px);box-shadow:var(--sh)}
+.evid-img{width:100%;height:120px;object-fit:cover;display:block;background:var(--bg3)}
+.evid-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;height:100px;background:var(--bg3)}
+.evid-photos .ph-wrap{position:relative;overflow:hidden;cursor:pointer}
+.evid-photos img{width:100%;height:100%;object-fit:cover;display:block}
+.evid-photos .ph-label{position:absolute;bottom:2px;left:3px;font-size:8px;color:#fff;background:rgba(0,0,0,.55);padding:1px 4px;border-radius:3px}
+.evid-body{padding:11px 13px}
+.evid-pdv{font-weight:700;font-size:12.5px;margin-bottom:2px}
+.evid-meta{font-size:10.5px;color:var(--tx3);margin-bottom:8px}
+.evid-tags{display:flex;flex-wrap:wrap;gap:5px}
+
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:center;justify-content:center}
+.modal-ov.open{display:flex}
+.modal-box{background:var(--bg2);border-radius:16px;max-width:560px;width:92%;overflow:hidden;border:1px solid var(--bd);max-height:88vh;overflow-y:auto;box-shadow:var(--sh)}
+.modal-box img{width:100%;display:block;max-height:320px;object-fit:cover}
+.modal-body{padding:18px}
+.close-btn{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;border:none;cursor:pointer;font-size:15px;z-index:2}
+
+.semaforo{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+@media(max-width:900px){.semaforo{grid-template-columns:repeat(2,1fr)}}
+.sf-card{border-radius:12px;padding:16px;border:1px solid var(--bd)}
+.sf-card.rojo{background:var(--er-d)}
+.sf-card.naranja{background:rgba(232,160,69,.16)}
+.sf-card.amarillo{background:var(--wa-d)}
+.sf-card.ok{background:var(--ok-d)}
+.sf-card.vi{background:var(--vi-d)}
+.sf-card.br{background:var(--br-d)}
+.kpi.clickable{cursor:pointer}
+.kpi.clickable:hover{border-color:var(--brand-d)}
+.sf-val{font-size:24px;font-weight:800}
+.sf-lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:4px}
+
+#map-cobertura,#map-recorrido{height:340px;border-radius:var(--r2);overflow:hidden}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg4);border:1px solid var(--bd2);color:var(--tx);padding:12px 18px;border-radius:10px;box-shadow:var(--sh);font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;z-index:300;opacity:0;transform:translateY(10px);transition:.25s ease}
+.toast.show{opacity:1;transform:translateY(0)}
+.rank-medal{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff;flex-shrink:0}
+.select-inline{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:7px 10px;border-radius:8px}
+.mono{font-variant-numeric:tabular-nums}
+.section-divider{display:flex;align-items:center;gap:9px;margin:24px 0 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3)}
+.section-divider:first-child{margin-top:0}
+.section-divider::after{content:'';flex:1;height:1px;background:var(--bd)}
+.roi-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;padding:14px 0;border-bottom:1px solid var(--bd)}
+.roi-row:last-child{border-bottom:none}
+.roi-lbl{font-size:12.5px;font-weight:700;color:var(--tx2)}
+.roi-lbl small{display:block;font-weight:500;color:var(--tx3);font-size:11px;margin-top:2px}
+.roi-val{font-weight:800;color:var(--brand2);font-size:13px;white-space:nowrap;margin-left:10px}
+.roi-slider{width:100%;display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:5px;border-radius:4px;background:var(--bg4);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:17px;height:17px;border-radius:50%;background:var(--brand2);cursor:pointer;border:3px solid var(--bg2);box-shadow:0 0 0 1px var(--brand2)}
+input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;background:var(--brand2);cursor:pointer;border:3px solid var(--bg2)}
+.impact-hero{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.impact-hero .big{font-size:34px;font-weight:800;color:var(--brand2);letter-spacing:-.5px}
+.delta-badge{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:20px}
+.delta-badge.up{background:var(--ok-d);color:var(--ok)}
+.delta-badge.down{background:var(--er-d);color:var(--er)}
+.delta-badge.flat{background:var(--bg4);color:var(--tx3)}
+</style>
+</head>
+<body class="light">
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" id="brand-mark">+MK</div>
+      <div>
+        <div class="brand-name">+Marka</div>
+        <div class="brand-sub">Nova Consumo · Paraguay</div>
+      </div>
+    </div>
+    <div class="demo-badge"><i class="fas fa-circle" style="font-size:6px"></i> Demo comercial</div>
+
+    <div class="nav-sect">Análisis</div>
+    <nav class="nav" id="nav">
+      <div class="ni active" data-p="resumen"><i class="fas fa-chart-pie"></i>Resumen ejecutivo</div>
+      <div class="ni" data-p="precios"><i class="fas fa-tags"></i>Precios</div>
+      <div class="ni" data-p="auditoria"><i class="fas fa-clipboard-check"></i>Auditoría de PDV</div>
+      <div class="ni" data-p="evidencias"><i class="fas fa-camera"></i>Relevamiento fotográfico</div>
+    </nav>
+    <div class="nav-sect">Productos</div>
+    <nav class="nav" id="nav3">
+      <div class="ni" data-p="alertas"><i class="fas fa-exclamation-triangle"></i>Averiados y Vencimientos<span class="ni-badge" id="nb-alertas">0</span></div>
+      <div class="ni" data-p="quiebres"><i class="fas fa-box-open"></i>Quiebres de stock</div>
+      <div class="ni" data-p="ofertas"><i class="fas fa-percent"></i>Ofertas y Promociones</div>
+    </nav>
+    <div class="nav-sect">Equipo</div>
+    <nav class="nav" id="nav2">
+      <div class="ni" data-p="cobertura"><i class="fas fa-store"></i>Cobertura</div>
+      <div class="ni" data-p="jornada"><i class="fas fa-user-clock"></i>Jornada y Asistencia<span class="ni-badge" id="nb-tardanzas">0</span><span class="ni-badge" id="nb-ausentes">0</span></div>
+      <div class="ni" data-p="recorrido"><i class="fas fa-route"></i>Recorrido por persona</div>
+      <div class="ni" data-p="comisiones"><i class="fas fa-hand-holding-dollar"></i>Comisiones</div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <details class="prefs-panel">
+        <summary class="prefs-summary"><span><i class="fas fa-sliders"></i> Preferencias</span><i class="fas fa-chevron-down chev"></i></summary>
+        <div class="prefs-body">
+          <div class="fbar-label" style="margin-bottom:8px"><i class="fas fa-palette"></i> Color de marca</div>
+          <div class="swatches" id="swatches"></div>
+          <div class="theme-toggle" id="theme-toggle"><i class="fas fa-sun" id="theme-icon"></i><span id="theme-label">Modo claro</span></div>
+        </div>
+      </details>
+      <div class="foot-note">Todos los datos de este panel son ficticios y se generan localmente con fines de demostración comercial.</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title"><i class="fas fa-chart-pie" id="pt-icon"></i><span id="pt-text">Resumen ejecutivo</span></div>
+      <div class="topbar-actions">
+        <button class="tb-btn" id="btn-refresh"><i class="fas fa-sync-alt"></i> Actualizar</button>
+        <button class="tb-btn primary" id="btn-export"><i class="fas fa-file-export"></i> Exportar CSV</button>
+      </div>
+    </div>
+    <div class="fbar">
+      <select id="f-cadena" class="select-inline"><option value="">Todas las cadenas</option></select>
+      <select id="f-ciudad" class="select-inline"><option value="">Todas las ciudades</option></select>
+      <select id="f-categoria" class="select-inline"><option value="">Todas las categorías</option></select>
+      <span class="fbar-label" style="margin-left:6px"><i class="fas fa-calendar-week"></i> Rango</span>
+      <input type="date" id="f-desde" class="select-inline">
+      <span style="color:var(--tx3)">→</span>
+      <input type="date" id="f-hasta" class="select-inline">
+      <button class="tb-btn" id="btn-junio" style="padding:7px 12px">Junio</button>
+      <button class="tb-btn" id="btn-julio" style="padding:7px 12px">Julio</button>
+      <div id="fbar-chips" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="modal-ov" id="modal-photo">
+  <div class="modal-box" style="position:relative">
+    <button class="close-btn" id="modal-close"><i class="fas fa-times"></i></button>
+    <img id="modal-img" src="" alt="Evidencia">
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   NOVA CONSUMO — DATOS FICTICIOS GENERADOS LOCALMENTE (Paraguay)
+   Nada de esta información corresponde a un cliente real.
+   ============================================================ */
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rng = mulberry32(20260808);
+const rnd = ()=>rng();
+const pick = arr => arr[Math.floor(rnd()*arr.length)];
+const chance = p => rnd() < p;
+const fmtInt = n => Math.round(n).toLocaleString('es-PY');
+const fmtGs = n => 'Gs. '+Math.round(n).toLocaleString('es-PY');
+const fmtPct = n => Math.round(n)+'%';
+const pad2 = n => String(n).padStart(2,'0');
+const isoDate = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const dateDisplay = iso => { const [y,m,d]=iso.split('-'); return `${d}/${m}`; };
+const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const minToHHMM = min => { min=((Math.round(min)%1440)+1440)%1440; return pad2(Math.floor(min/60))+':'+pad2(min%60); };
+const hhmmToMin = s => { const [h,m]=s.split(':').map(Number); return h*60+m; };
+
+const CHAINS = ['SuperAhorro','Mercado Total','La Espiga','FreshMax','Bodega Central'];
+const ZONES = ['Centro','Zona Norte','Zona Sur','Zona Este','Zona Oeste'];
+const CITY_CONFIG = [
+  {name:'Asunción', lat:-25.2637, lng:-57.5759, promoters:5},
+  {name:'Ciudad del Este', lat:-25.5095, lng:-54.6116, promoters:4},
+  {name:'San Lorenzo', lat:-25.3400, lng:-57.5083, promoters:3},
+  {name:'Fernando de la Mora', lat:-25.3200, lng:-57.5333, promoters:3},
+  {name:'Luque', lat:-25.2696, lng:-57.4894, promoters:3},
+  {name:'Encarnación', lat:-27.3306, lng:-55.8664, promoters:2},
+];
+const CITIES = CITY_CONFIG.map(c=>c.name);
+const CITY_COORDS = {}; CITY_CONFIG.forEach(c=>CITY_COORDS[c.name]=[c.lat,c.lng]);
+const CATEGORIES = ['Snacks','Bebidas','Cuidado del Hogar','Higiene Personal'];
+const CATALOGO = {
+  'Snacks':{
+    'Papas fritas':['Nova Snacks Clásicas 150g','Nova Snacks Picantes 120g'],
+    'Galletitas':['Nova Galletitas Dulces 200g','Nova Galletitas Saladas 180g'],
+  },
+  'Bebidas':{
+    'Gaseosas':['Nova Cítrica 1L','Nova Cola 1.5L'],
+    'Aguas saborizadas':['Nova Agua Saborizada 500ml','Nova Agua Frutal 500ml'],
+  },
+  'Cuidado del Hogar':{
+    'Limpieza líquida':['Nova Detergente Floral 900ml','Nova Multiuso 750ml'],
+    'Desinfección':['Nova Lavandina 1L','Nova Desinfectante Pino 900ml'],
+  },
+  'Higiene Personal':{
+    'Jabones':['Nova Jabón Avena x3','Nova Jabón Glicerina x3'],
+    'Shampoo':['Nova Shampoo Reparador 400ml','Nova Shampoo Hidratante 400ml'],
+  },
+};
+const SUBCATEGORIAS = [];
+Object.entries(CATALOGO).forEach(([cat,subs])=>Object.keys(subs).forEach(sub=>SUBCATEGORIAS.push({cat,sub})));
+const TODOS_PRODUCTOS = Object.values(CATALOGO).flatMap(subs=>Object.values(subs).flat());
+const PRODUCTS = {};
+Object.entries(CATALOGO).forEach(([cat,subs])=>PRODUCTS[cat]=Object.values(subs).flat());
+const PRECIO_BASE = {
+  'Snacks':[8000,15000], 'Bebidas':[6000,12000],
+  'Cuidado del Hogar':[18000,32000], 'Higiene Personal':[12000,22000],
+};
+const COMPETIDORES = ['Rival Plus','Marca Andina','Sello Azul'];
+const ACCIONES_COMP = ['Promoción 2x1','Degustación en punto','Nueva exhibición','Bajó su precio','Descuento por cantidad'];
+const POP_TYPES = ['Exhibidor de punta','Cenefa','Isla promocional','Stopper de góndola','Habladores de precio'];
+const MOTIVOS_VENC = ['Rotación baja del local','Sobre-stock enviado por el depósito','Vencimiento corto de fábrica','Promoción no vendida a tiempo'];
+const MOTIVOS_PROMO = ['Cartelería faltante','Falta de comunicación al personal del local','Promoción vencida','Exhibición adicional no armada'];
+const CATEGORIA_DE_PRODUCTO = {};
+Object.entries(CATALOGO).forEach(([cat,subs])=>Object.values(subs).flat().forEach(p=>CATEGORIA_DE_PRODUCTO[p]=cat));
+const PRECIO_SUGERIDO = {};
+TODOS_PRODUCTOS.forEach(p=>{ const [lo,hi]=PRECIO_BASE[CATEGORIA_DE_PRODUCTO[p]]; PRECIO_SUGERIDO[p]=Math.round((lo+hi)/2/100)*100; });
+const META_REPOSICION_POR_VISITA = 5; // unidades esperadas repuestas por visita, para el 100% de Rotación
+const COMISION_TOTAL = 700000;
+const COMISION_KPIS = {
+  precios:        {peso:0.25, monto:175000, label:'Cumplimiento de precio público'},
+  rotacion:       {peso:0.20, monto:140000, label:'Rotación de producto'},
+  disponibilidad: {peso:0.15, monto:105000, label:'Disponibilidad de stock (sin quiebres)'},
+  vencimientos:   {peso:0.15, monto:105000, label:'Control de vencidos y averiados'},
+  visitas:        {peso:0.15, monto:105000, label:'Cumplimiento del plan de visitas'},
+  puntualidad:    {peso:0.10, monto: 70000, label:'Puntualidad'},
+};
+const PROMOTER_NAMES = [
+  'Rodrigo Benítez','Fátima Ovelar','Diego Cabrera','Liz Duarte','Marcos Villalba',
+  'Sofía Ayala','Gustavo Cardozo','Andrea Ríos','Hugo Ferreira',
+  'Paola Franco','Julio Ortigoza','Belén Espínola',
+  'Cristian Melgarejo','Nadia Aquino','Wilson Recalde',
+  'Carla Bogado','Rubén Acosta','Yenny Servín',
+  'Mario Núñez','Lorena Vera',
+];
+const SUP_BY_CITY = {
+  'Asunción':'s1','Ciudad del Este':'s2','Encarnación':'s2',
+  'San Lorenzo':'s3','Fernando de la Mora':'s3','Luque':'s4',
+};
+const SUPERVISORS = [
+  {id:'s1',name:'Romina Díaz'},{id:'s2',name:'Federico Álvarez'},
+  {id:'s3',name:'Agustina Torres'},{id:'s4',name:'Diego Maidana'},
+];
+const supById = id => SUPERVISORS.find(s=>s.id===id);
+
+// ---- Generar PDVs (una sucursal por cadena y por zona de cada ciudad) y Promotores ----
+const PDVS = [];
+const PROMOTERS = [];
+let pdvSeq=0, pIdx=0;
+CITY_CONFIG.forEach(city=>{
+  for(let z=0; z<city.promoters; z++){
+    const zone = ZONES[z];
+    const portfolio = [];
+    const angle = z*(Math.PI*2/5);
+    CHAINS.forEach(chain=>{
+      pdvSeq++;
+      const id = 'pdv'+pdvSeq;
+      PDVS.push({
+        id, chain, city:city.name, zone,
+        name:`${chain} — ${city.name} (${zone})`,
+        lat: city.lat + Math.cos(angle)*0.012 + (rnd()-0.5)*0.004,
+        lng: city.lng + Math.sin(angle)*0.012 + (rnd()-0.5)*0.004,
+      });
+      portfolio.push(id);
+    });
+    PROMOTERS.push({id:'p'+(pIdx+1), name:PROMOTER_NAMES[pIdx], city:city.name, zone, supervisorId:SUP_BY_CITY[city.name], portfolio});
+    pIdx++;
+  }
+});
+const pdvById = id => PDVS.find(p=>p.id===id);
+const promoterById = id => PROMOTERS.find(p=>p.id===id);
+const promotorDePdv = pdvId => PROMOTERS.find(p=>p.portfolio.includes(pdvId));
+
+// ---- Banco de fotos curadas (Unsplash) — estanterías, precios y productos reales ----
+const FOTOS_STOCK = {
+  estanteria:[
+    'https://images.unsplash.com/photo-1578916171728-46686eac8d58',
+    'https://images.unsplash.com/photo-1604719312566-8912e9227c6a',
+    'https://images.unsplash.com/photo-1580913428023-02c695666d61',
+    'https://images.unsplash.com/photo-1534723452862-4c874018d66d',
+    'https://images.unsplash.com/photo-1670684684445-a4504dca0bbc',
+    'https://images.unsplash.com/photo-1515706886582-54c73c5eaf41',
+    'https://images.unsplash.com/photo-1614907634002-65ac4cb74acb',
+    'https://images.unsplash.com/photo-1606824722920-4c652a70f348',
+  ],
+  precio:[
+    'https://images.unsplash.com/photo-1553546895-531931aa1aa8',
+    'https://images.unsplash.com/photo-1506617564039-2f3b650b7010',
+    'https://images.unsplash.com/photo-1676730049571-24305f4dcff7',
+    'https://images.unsplash.com/photo-1624234595043-4f8b284906d2',
+  ],
+  producto:[
+    'https://images.unsplash.com/photo-1588238142232-7108fb7dcbb6',
+    'https://images.unsplash.com/photo-1665359045452-bfa257a2a6bf',
+    'https://images.unsplash.com/photo-1625740822008-e45abf4e01d5',
+    'https://images.unsplash.com/photo-1556767576-aa7f4d92262b',
+  ],
+};
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h; }
+function fotoUrl(tag, seedStr, w, h){
+  const pool = FOTOS_STOCK[tag] || FOTOS_STOCK.estanteria;
+  const url = pool[hashStr(seedStr+tag)%pool.length];
+  return `${url}?w=${w||480}&h=${h||360}&fit=crop&auto=format&q=60`;
+}
+
+// ---- Generación de visitas / auditorías de PDV (últimos ~3 meses, sin domingos) ----
+const VISITS = [];
+let visitSeq = 0;
+const TODAY = new Date();
+const DIAS_HISTORIAL = 90;
+const MOTIVOS_AVERIA = ['Envase dañado','Producto golpeado','Humedad / deterioro','Etiqueta ilegible'];
+const MOTIVOS_NO_VISITA = ['Visita fuera de ruta','Cubrió otro PDV por orden del supervisor','Control de inventario en depósito','Local cerrado','Capacitación / reunión de equipo','Emergencia en otro punto de venta','Reprogramada para el día siguiente'];
+const VISITAS_OMITIDAS = []; // PDVs del portfolio de un promotor que ese día no llegaron a visitarse
+function pickAccionCompetencia(boost){
+  if(chance(0.5+boost*0.1)) return 'Sin acciones';
+  return pick(ACCIONES_COMP);
+}
+// Tendencia comercial: julio mejora respecto a junio (relato de mejora mes a mes)
+function boostDeMes(day){ const m=day.getMonth()+1; return m===7?1:(m===6?-1:0); }
+for(let back=DIAS_HISTORIAL; back>=0; back--){
+  const day = addDays(TODAY, -back);
+  if(day.getDay()===0) continue; // domingo cerrado
+  const boost = boostDeMes(day);
+  PROMOTERS.forEach(prom=>{
+    const n = Math.min(prom.portfolio.length, 3 + Math.floor(rnd()*3)); // 3-5 visitas/día
+    const shuffled = [...prom.portfolio].sort(()=>rnd()-0.5).slice(0,n);
+    prom.portfolio.filter(pdvId=>!shuffled.includes(pdvId)).forEach(pdvId=>{
+      VISITAS_OMITIDAS.push({pdvId, promotorId:prom.id, fecha:isoDate(day), motivo:pick(MOTIVOS_NO_VISITA)});
+    });
+    let hour = 9, min = 0;
+    shuffled.forEach(pdvId=>{
+      visitSeq++;
+      const categoria = pick(CATEGORIES);
+      const cumpleCriterios = chance(0.82+boost*0.05);
+      const tienePOP = chance(0.63+boost*0.03);
+      const tienePrecios = chance(0.91+boost*0.02);
+      const tieneVencidos = chance(0.11-boost*0.03);
+      let estadoVenc=null, diasVenc=null, productos=[], motivoVencido=null, cantidadVencidos=0;
+      if(tieneVencidos){
+        const roll = rnd();
+        if(roll<0.3){ estadoVenc='vencido'; diasVenc = -(1+Math.floor(rnd()*10)); }
+        else if(roll<0.55){ estadoVenc='urgente'; diasVenc = 1+Math.floor(rnd()*7); }
+        else if(roll<0.8){ estadoVenc='proximo'; diasVenc = 8+Math.floor(rnd()*23); }
+        else { estadoVenc='holgado'; diasVenc = 31+Math.floor(rnd()*30); }
+        const opts = PRODUCTS[categoria];
+        productos = rnd()<0.5 ? [opts[0]] : [opts[0],opts[1]];
+        motivoVencido = pick(MOTIVOS_VENC);
+        cantidadVencidos = 2+Math.floor(rnd()*22);
+      }
+      const tieneAveriados = chance(0.08-boost*0.02);
+      let motivoAveriado=null, productosAveriados=[], cantidadAveriados=0;
+      if(tieneAveriados){
+        motivoAveriado = pick(MOTIVOS_AVERIA);
+        const opts = PRODUCTS[categoria];
+        productosAveriados = rnd()<0.6 ? [opts[0]] : [opts[0],opts[1]];
+        cantidadAveriados = 1+Math.floor(rnd()*9);
+      }
+      const rPresencia = rnd() - boost*0.08;
+      const presenciaCompetencia = rPresencia<0.30 ? 'Menor' : rPresencia<0.75 ? 'Igual' : 'Mayor';
+      const subcategoria = pick(Object.keys(CATALOGO[categoria]));
+      const producto = pick(CATALOGO[categoria][subcategoria]);
+      const precioSugerido = PRECIO_SUGERIDO[producto];
+      const tieneQuiebre = chance(0.12-boost*0.045); // tasa de quiebre real de mercado: ~7.5% con buena ejecución (julio), ~16.5% sin ella (junio) — referencia: estudios de disponibilidad en góndola (Nielsen/ECR) ubican el OOS promedio en 8-10%, hasta 15%+ en SKUs de alta rotación sin monitoreo de campo
+      const tipoQuiebre = tieneQuiebre ? (chance(0.65)?'Góndola':'Total') : null;
+      const unidadesPerdidasEstimadas = tieneQuiebre ? (tipoQuiebre==='Total'?4:2)+Math.floor(rnd()*6) : 0;
+      const cantidadEnGondola = tieneQuiebre ? 0 : null;
+      const cantidadEnDeposito = tieneQuiebre ? (tipoQuiebre==='Góndola' ? 3+Math.floor(rnd()*15) : 0) : null;
+      const valorPerdidoEstimadoQuiebre = unidadesPerdidasEstimadas * precioSugerido;
+      const variacionPrecio = (rnd()-0.5)*0.16; // +/-8% vs. el precio sugerido
+      const precioNuestro = tieneQuiebre ? null : Math.round(precioSugerido*(1+variacionPrecio)/100)*100;
+      const cumplePrecioPropio = !tieneQuiebre && Math.abs(precioNuestro-precioSugerido)/precioSugerido<=0.05;
+      const precioCompetidor = Math.round(precioSugerido*(0.85+rnd()*0.3)*1.10/100)*100; // competencia +10% en promedio vs. precio sugerido
+      const unidadesRepuestas = tieneQuiebre ? 0 : Math.floor(rnd()*(META_REPOSICION_POR_VISITA*2+1));
+      const tienePromocion = chance(0.72+boost*0.06);
+      const motivoIncumplimientoPromo = tienePromocion ? null : pick(MOTIVOS_PROMO);
+      const duracion = 15+Math.floor(rnd()*38);
+      min += 10+Math.floor(rnd()*20);
+      if(min>=60){hour+=1;min-=60;}
+      const fotoSeed = 'v'+visitSeq;
+      VISITS.push({
+        id:'v'+visitSeq, fecha:isoDate(day), promotorId:prom.id, pdvId, categoria, subcategoria, producto,
+        hora:`${pad2(hour)}:${pad2(min)}`, duracion,
+        cumpleCriterios, tienePOP, tienePrecios, tieneVencidos, estadoVenc, diasVenc, productos, motivoVencido, cantidadVencidos,
+        tieneAveriados, motivoAveriado, productosAveriados, cantidadAveriados,
+        presenciaCompetencia,
+        popTipo: tienePOP ? pick(POP_TYPES) : null,
+        gondolaPct: tieneQuiebre ? 0 : Math.max(5,Math.min(95,Math.round(15+rnd()*35+boost*5))),
+        gondolaPctCompetidor: tieneQuiebre ? 0 : Math.max(5,Math.min(95,Math.round(20+rnd()*35-boost*4))),
+        espacioGanado: !tieneQuiebre && chance(0.22+boost*0.05),
+        competidorNombre: pick(COMPETIDORES),
+        precioSugerido, precioNuestro, precioCompetidor, cumplePrecioPropio,
+        tieneQuiebre, tipoQuiebre, unidadesPerdidasEstimadas, valorPerdidoEstimadoQuiebre, unidadesRepuestas,
+        cantidadEnGondola, cantidadEnDeposito,
+        tienePromocion, motivoIncumplimientoPromo,
+        accionCompetencia: pickAccionCompetencia(boost),
+        fotoSeed,
+        fotoEstanteria: fotoUrl('estanteria', fotoSeed),
+        fotoPrecio: fotoUrl('precio', fotoSeed),
+        fotoProducto: fotoUrl('producto', fotoSeed),
+        fotoVencidos: tieneVencidos ? fotoUrl('producto', fotoSeed+'venc') : null,
+      });
+      hour += Math.floor(duracion/60); min += duracion%60; if(min>=60){hour+=1;min-=60;}
+    });
+  });
+}
+
+// ---- Generación de jornadas (entrada / almuerzo / salida) ----
+// Horario: lunes a viernes 08:00-18:00, sábados 08:00-12:00 (sin almuerzo), domingo cerrado.
+const ENTRADA_PROG = 8*60; // 08:00
+const SALIDA_PROG_SEMANA = 18*60; // 18:00
+const SALIDA_PROG_SABADO = 12*60; // 12:00
+const LIMITE_ALMUERZO = 60; // minutos tope esperado de almuerzo
+const JORNADAS = [];
+const AUSENCIAS = [];
+for(let back=DIAS_HISTORIAL; back>=0; back--){
+  const day = addDays(TODAY, -back);
+  if(day.getDay()===0) continue;
+  const esSabado = day.getDay()===6;
+  const boost = boostDeMes(day);
+  PROMOTERS.forEach(prom=>{
+    if(chance(0.08-boost*0.03)){ AUSENCIAS.push({promotorId:prom.id, fecha:isoDate(day)}); return; }
+    const entradaMin = ENTRADA_PROG - 15 + Math.floor(rnd()*70); // 07:45 - 08:55
+    const minutosTardeRaw = entradaMin - ENTRADA_PROG;
+    const tardanza = minutosTardeRaw > 10;
+    const minutosTarde = tardanza ? minutosTardeRaw : 0;
+    const salidaProgramada = esSabado ? SALIDA_PROG_SABADO : SALIDA_PROG_SEMANA;
+
+    let almSalidaMin=null, almEntradaMin=null, duracionAlmuerzo=0;
+    if(!esSabado){
+      almSalidaMin = 720 + Math.floor(rnd()*90); // 12:00 - 13:30
+      duracionAlmuerzo = 40 + Math.floor(rnd()*35);
+      almEntradaMin = almSalidaMin + duracionAlmuerzo;
+    }
+    const salidaMin = chance(0.6)
+      ? salidaProgramada + Math.floor(rnd()*20)
+      : salidaProgramada - (10 + Math.floor(rnd()*(esSabado?30:50)));
+    const cumplioSalida = salidaMin >= salidaProgramada;
+
+    JORNADAS.push({
+      id:'j'+prom.id+'_'+isoDate(day), promotorId:prom.id, fecha:isoDate(day), esSabado,
+      entrada:minToHHMM(entradaMin),
+      almSalida: almSalidaMin!=null ? minToHHMM(almSalidaMin) : null,
+      almEntrada: almEntradaMin!=null ? minToHHMM(almEntradaMin) : null,
+      salida:minToHHMM(salidaMin), salidaProgramada:minToHHMM(salidaProgramada),
+      tardanza, minutosTarde, duracionAlmuerzo, cumplioSalida,
+      horasTrabajadas: Math.round(((salidaMin-entradaMin-duracionAlmuerzo)/60)*10)/10,
+    });
+  });
+}
+
+// ============================================================
+// ESTADO / FILTROS
+// ============================================================
+let currentPage='resumen';
+let temaActivoIdx=0; // índice del tema de color de marca activo (ver THEMES) — 0 = rojo
+const FECHA_MIN = isoDate(addDays(TODAY,-DIAS_HISTORIAL));
+const FECHA_MAX = isoDate(TODAY);
+const ANIO_DEMO = TODAY.getFullYear();
+const F = {cadena:'', ciudad:'', categoria:'', fechaDesde:`${ANIO_DEMO}-07-01`, fechaHasta:`${ANIO_DEMO}-07-31`};
+let searchTerm='';
+let recorridoPromotor = PROMOTERS[0].id;
+function fechaEquipoActual(){ return F.fechaHasta || F.fechaDesde || FECHA_MAX; }
+let jornadaFiltroActivo = null;
+let coberturaCadenasAbiertas = new Set();
+let coberturaClusterFiltro = null;
+let resumenClusterAbiertos = new Set();
+let preciosProductoComparado='';
+let preciosDetalleCompetidor=COMPETIDORES[0];
+let preciosLocalBusqueda='';
+let preciosLocalClusterFiltro='';
+let alertasTab='todos';
+let auditoriaPdvFiltro='';
+const charts = {};
+let mapCobertura=null, mapRecorrido=null;
+function rangoLabel(){
+  if(F.fechaDesde && F.fechaHasta) return `${dateDisplay(F.fechaDesde)} → ${dateDisplay(F.fechaHasta)}`;
+  if(F.fechaDesde) return `desde ${dateDisplay(F.fechaDesde)}`;
+  if(F.fechaHasta) return `hasta ${dateDisplay(F.fechaHasta)}`;
+  return 'todo el período';
+}
+function fechaEnRango(fecha){
+  if(F.fechaDesde && fecha < F.fechaDesde) return false;
+  if(F.fechaHasta && fecha > F.fechaHasta) return false;
+  return true;
+}
+function filterVisits(){
+  return VISITS.filter(v=>{
+    if(!fechaEnRango(v.fecha)) return false;
+    const pdv = pdvById(v.pdvId);
+    if(F.cadena && pdv.chain!==F.cadena) return false;
+    if(F.ciudad && pdv.city!==F.ciudad) return false;
+    if(F.categoria && v.categoria!==F.categoria) return false;
+    return true;
+  });
+}
+function filterJornadas(){
+  return JORNADAS.filter(j=>{
+    if(!fechaEnRango(j.fecha)) return false;
+    const prom = promoterById(j.promotorId);
+    if(F.ciudad && prom.city!==F.ciudad) return false;
+    return true;
+  });
+}
+function filterAusencias(){
+  return AUSENCIAS.filter(a=>{
+    if(!fechaEnRango(a.fecha)) return false;
+    const prom = promoterById(a.promotorId);
+    if(F.ciudad && prom.city!==F.ciudad) return false;
+    return true;
+  });
+}
+function filterOmitidas(){
+  return VISITAS_OMITIDAS.filter(o=>{
+    if(!fechaEnRango(o.fecha)) return false;
+    const pdv = pdvById(o.pdvId);
+    if(F.cadena && pdv.chain!==F.cadena) return false;
+    if(F.ciudad && pdv.city!==F.ciudad) return false;
+    return true;
+  });
+}
+
+// Visitas planificadas (esperadas) vs. realizadas para un conjunto de PDVs, dentro del período ya filtrado.
+// "Esperadas" = realizadas + omitidas, por construcción del dato (cada día hábil el promotor visita o no visita cada PDV de su cartera).
+function coberturaDeVisitas(pdvIds, rows, omitidas){
+  const idSet = new Set(pdvIds);
+  const realizadas = rows.filter(v=>idSet.has(v.pdvId)).length;
+  const esperadas = realizadas + omitidas.filter(o=>idSet.has(o.pdvId)).length;
+  return {realizadas, esperadas, cumpl: esperadas? Math.round(realizadas/esperadas*100):100};
+}
+
+// Clasificación de locales por rotación (unidades repuestas), en clústeres H (top 10%) > A (10-30%) > B (30-60%) > C (60-100%).
+// Locales con pocos relevamientos en el período (< MIN_VISITAS_CLASIFICAR) quedan "Sin clasificar" para no rankear con datos insuficientes.
+const CLUSTER_DEF = [
+  {id:'H', label:'Clúster H', hasta:0.10, color:'ok'},
+  {id:'A', label:'Clúster A', hasta:0.30, color:'bl'},
+  {id:'B', label:'Clúster B', hasta:0.60, color:'wa'},
+  {id:'C', label:'Clúster C', hasta:1.01, color:'er'},
+];
+function clasificarLocalesPorRotacion(pdvsFiltrados, rows){
+  const MIN_VISITAS_CLASIFICAR = 3;
+  const rotacionPorPdv = {}, visitasPorPdv = {};
+  rows.forEach(r=>{ rotacionPorPdv[r.pdvId]=(rotacionPorPdv[r.pdvId]||0)+r.unidadesRepuestas; visitasPorPdv[r.pdvId]=(visitasPorPdv[r.pdvId]||0)+1; });
+  const elegibles = pdvsFiltrados.filter(pdv=>(visitasPorPdv[pdv.id]||0)>=MIN_VISITAS_CLASIFICAR)
+    .map(pdv=>({pdv, unid:rotacionPorPdv[pdv.id]||0}))
+    .sort((a,b)=>b.unid-a.unid);
+  const clasificados = elegibles.map((r,i,arr)=>({...r, cluster: CLUSTER_DEF.find(c=>((i+1)/arr.length)<=c.hasta).id}));
+  const clusterPorPdvId = {};
+  clasificados.forEach(r=>clusterPorPdvId[r.pdv.id]=r.cluster);
+  return { clasificados, clusterDe: pdvId => clusterPorPdvId[pdvId] || null };
+}
+// Ofertas y promociones: derivadas de las visitas con promoción activa (tienePromocion), sin tocar la secuencia rnd()
+// compartida — todo se deriva de un hash determinístico del id de la visita, para no correr el resto de los datos generados.
+const TIPOS_OFERTA = ['Descuento %', '2x1', 'Combo'];
+const PESO_DIA_OFERTA = [0.5, 0.55, 0.55, 0.55, 0.65, 1, 0.9]; // dom,lun,mar,mie,jue,vie,sab — pico viernes/sábado
+function diaSemanaDe(fecha){ const [y,m,d]=fecha.split('-').map(Number); return new Date(y,m-1,d).getDay(); }
+function ofertaDetalle(r){
+  const hTipo = hashStr(r.id+'oftipo');
+  const tipo = TIPOS_OFERTA[hTipo%3];
+  const detalle = tipo==='Descuento %' ? `${[10,15,20,25,30][hTipo%5]}% OFF` : tipo==='2x1' ? '2x1' : `Combo x${2+(hTipo%2)}`;
+  const origen = (hashStr(r.id+'oforigen')%100) < 60 ? 'Propia' : 'Local';
+  const vigenciaDias = [7,10,14,15,21,30][hashStr(r.id+'ofvig')%6];
+  return {tipo, detalle, origen, vigenciaDias};
+}
+function mkChart(id, config){
+  if(charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if(!el) return;
+  charts[id] = new Chart(el, config);
+}
+
+function toast(msg, icon='fa-check-circle'){
+  const t=document.getElementById('toast');
+  t.innerHTML = `<i class="fas ${icon}" style="color:var(--brand2)"></i>${msg}`;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+function animateNum(el, target, suffix=''){
+  if(!el) return;
+  const start=0, dur=650, t0=performance.now();
+  function step(t){
+    const p=Math.min(1,(t-t0)/dur);
+    el.textContent = fmtInt(start+(target-start)*(1-Math.pow(1-p,3))) + suffix;
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ============================================================
+// COMPONENTES REUTILIZABLES
+// ============================================================
+function kpiCard(label, value, sub, icon, colorVar, id, target){
+  const clickable = target ? `class="kpi clickable" onclick="goPage('${target}')" title="Ver detalle"` : `class="kpi"`;
+  return `<div ${clickable} style="background:linear-gradient(135deg, var(${colorVar}-d), var(--bg2) 70%)">
+    <div class="kpi-top">
+      <div class="kpi-lbl">${label}</div>
+      <div class="ico-chip" style="color:var(${colorVar});background:var(${colorVar}-d)"><i class="fas ${icon}"></i></div>
+    </div>
+    <div class="kpi-val" style="color:var(${colorVar})" id="${id}">0</div>
+    <div class="kpi-sub">${sub}</div>
+    ${target?`<div class="kpi-link">Ver detalle <i class="fas fa-arrow-right"></i></div>`:''}
+  </div>`;
+}
+
+// ---- Tarjeta KPI expandible (kpix): variante simple o expandible con panel de detalle ----
+// El estado de qué tarjetas están abiertas se guarda acá para sobrevivir a los re-renders de la página.
+let kpixAbiertas = new Set();
+function kpiX(opts){
+  const { id, variant, icon, label, value, foot, tooltip, expandable, hint, detail } = opts;
+  const abierta = expandable && kpixAbiertas.has(id);
+  const cls = `kpix kpix-${variant}${expandable?' expandable':''}${abierta?' open':''}`;
+  return `<div class="${cls}" id="kpix-${id}" ${expandable?`data-kpix-id="${id}"`:''}>
+    <div class="kpix-top">
+      <div class="kpix-lbl">${label}</div>
+      <div class="ico-chip kpix-ico-chip"><i class="fas ${icon}"></i></div>
+    </div>
+    <div class="kpix-val">${value}</div>
+    ${foot?`<div class="kpix-foot">${foot}</div>`:''}
+    ${expandable?`<div class="kpix-hint"><span>${hint||'Ver detalle'}</span><i class="fas fa-chevron-down"></i></div>
+    <div class="kpix-panel"><div class="kpix-panel-inner">${detail||''}</div></div>`:''}
+    ${tooltip?`<div class="kpix-info" onclick="event.stopPropagation()">i<div class="kpix-tooltip">${tooltip}</div></div>`:''}
+  </div>`;
+}
+function wireKpiX(id){
+  const el = document.getElementById('kpix-'+id);
+  if(!el || el.dataset.wired) return;
+  el.dataset.wired = '1';
+  el.addEventListener('click', e=>{
+    if(e.target.closest('.kpix-info') || e.target.closest('a')) return;
+    const abierta = el.classList.toggle('open');
+    if(abierta) kpixAbiertas.add(id); else kpixAbiertas.delete(id);
+  });
+}
+function badgeVenc(estado){
+  if(estado==='vencido') return `<span class="badge er"><i class="fas fa-times-circle"></i> Vencido</span>`;
+  if(estado==='urgente') return `<span class="badge wa"><i class="fas fa-clock"></i> Vence ≤7 días</span>`;
+  if(estado==='proximo') return `<span class="badge wa" style="opacity:.8"><i class="fas fa-clock"></i> Vence 8-30 días</span>`;
+  if(estado==='holgado') return `<span class="badge" style="background:var(--ok-d);color:var(--ok);opacity:.75"><i class="fas fa-clock"></i> Vence +30 días</span>`;
+  return `<span class="badge ok"><i class="fas fa-check-circle"></i> OK</span>`;
+}
+function badgeAveria(motivo){
+  return `<span class="badge br"><i class="fas fa-box-open"></i> Averiado${motivo?': '+motivo:''}</span>`;
+}
+function badgeEntradaEstado(j){
+  if(j.tardanza) return `<span class="badge er"><i class="fas fa-clock"></i> Llegada tardía</span>`;
+  return `<span class="badge ok"><i class="fas fa-check"></i> A tiempo</span>`;
+}
+function badgeSalidaEstado(j){
+  if(j.cumplioSalida) return `<span class="badge ok"><i class="fas fa-check-double"></i> Cumplido</span>`;
+  return `<span class="badge wa"><i class="fas fa-arrow-left"></i> Antes de hora</span>`;
+}
+function badgeTardanza(min){
+  if(!min || min<=10) return `<span class="badge ok"><i class="fas fa-check-circle"></i> A tiempo</span>`;
+  return `<span class="badge er"><i class="fas fa-clock"></i> Fuera de horario</span>`;
+}
+function chip(label, onclickAttr){
+  return `<span class="fbar-chip" onclick="${onclickAttr}"><i class="fas fa-times" style="font-size:9px"></i>${label}</span>`;
+}
+function brandColor(){ return getComputedStyle(document.documentElement).getPropertyValue('--brand').trim(); }
+function brandColor2(){ return getComputedStyle(document.documentElement).getPropertyValue('--brand2').trim(); }
+// Color de acento para gráficos/tarjetas de datos (no de estado): si la marca elegida es roja, se evita el rojo
+// porque en este tablero el rojo ya significa "alerta/malo" — se usa un verde agua neutral en su lugar.
+function chartAccent(){ return temaActivoIdx===0 ? getComputedStyle(document.documentElement).getPropertyValue('--ok').trim() : brandColor(); }
+function chartAccent2(){ return temaActivoIdx===0 ? getComputedStyle(document.documentElement).getPropertyValue('--ok').trim() : brandColor2(); }
+// Estándar de color semáforo para gráficos de cumplimiento/estado: verde = bien, amarillo = regular, rojo = mal.
+function pctColor(pct){ return getComputedStyle(document.documentElement).getPropertyValue(pct>=85?'--ok':pct>=60?'--wa':'--er').trim(); }
+// Semáforo relativo a una meta (para métricas con metas distintas entre sí, ej. 35% vs. 95%): verde si la alcanza o supera, amarillo si está cerca, rojo si está lejos.
+function metaColor(real, meta){ const ratio = meta? real/meta*100 : 100; return getComputedStyle(document.documentElement).getPropertyValue(ratio>=100?'--ok':ratio>=85?'--wa':'--er').trim(); }
+function pctLegend(){
+  return `<div style="display:flex;gap:14px;font-size:10.5px;flex-wrap:wrap;margin-top:10px;color:var(--tx3)">
+    <span><span class="dot ok"></span> ≥85% cumple objetivo</span>
+    <span><span class="dot wa"></span> 60-84% regular</span>
+    <span><span class="dot er"></span> &lt;60% necesita atención</span>
+  </div>`;
+}
+// Ícono "i" con tooltip explicando qué muestra el gráfico/panel y cómo se calcula. Requiere un contenedor con position:relative.
+function infoTip(text){
+  return `<div class="kpix-info" onclick="event.stopPropagation()">i<div class="kpix-tooltip">${text}</div></div>`;
+}
+
+function buildFotoCard(r){
+  const pdv=pdvById(r.pdvId), prom=promoterById(r.promotorId);
+  const fotos = [{tag:'estanteria',u:r.fotoEstanteria,lbl:'Estantería'},{tag:'precio',u:r.fotoPrecio,lbl:'Precio'},{tag:'producto',u:r.fotoProducto,lbl:'Producto'}];
+  if(r.tieneVencidos) fotos[2] = {tag:'vencidos',u:r.fotoVencidos,lbl:'Vencidos'};
+  return `<div class="evid-card">
+    <div class="evid-photos">
+      ${fotos.map(f=>`<div class="ph-wrap" onclick='event.stopPropagation();openPhoto("${r.id}","${f.tag}")'><img src="${f.u}" loading="lazy" alt="${f.lbl}"><span class="ph-label">${f.lbl}</span></div>`).join('')}
+    </div>
+    <div class="evid-body" onclick='openPhoto("${r.id}","estanteria")' style="cursor:pointer">
+      <div class="evid-pdv">${pdv.name}</div>
+      <div class="evid-meta">${prom.name} · ${dateDisplay(r.fecha)} · ${r.hora}</div>
+      <div class="evid-tags">
+        ${r.cumpleCriterios?'<span class="badge ok">Criterios OK</span>':'<span class="badge er">Sin criterios</span>'}
+        ${r.tieneVencidos?'<span class="badge er">Vencidos</span>':''}
+        ${r.tieneQuiebre?'<span class="badge wa">Quiebre</span>':`<span class="badge bl">Góndola ${r.gondolaPct}%</span>`}
+      </div>
+    </div></div>`;
+}
+function openPhoto(visitId, tag){
+  const r = VISITS.find(v=>v.id===visitId);
+  const pdv = pdvById(r.pdvId), prom = promoterById(r.promotorId);
+  const fotoPorTag = {estanteria:r.fotoEstanteria, precio:r.fotoPrecio, producto:r.fotoProducto, vencidos:r.fotoVencidos};
+  document.getElementById('modal-img').src = (fotoPorTag[tag]||r.fotoEstanteria).replace('w=480&h=360','w=700&h=420');
+  const diffPrecio = r.tieneQuiebre ? null : Math.round((r.precioNuestro-r.precioCompetidor)/r.precioCompetidor*100);
+  document.getElementById('modal-body').innerHTML = `
+    <div style="font-weight:800;font-size:15px;margin-bottom:4px">${pdv.name}</div>
+    <div style="color:var(--tx3);font-size:12.5px;margin-bottom:12px">${prom.name} · ${dateDisplay(r.fecha)} · ${r.hora} · ${r.duracion} min en punto</div>
+    <div class="evid-tags" style="margin-bottom:12px">
+      ${badgeVenc(r.tieneVencidos ? r.estadoVenc : 'ok')}
+      ${r.cumpleCriterios?'<span class="badge ok">Criterios OK</span>':'<span class="badge er">Sin criterios</span>'}
+      ${r.tienePOP?`<span class="badge vi">POP: ${r.popTipo}</span>`:'<span class="badge wa">Sin POP</span>'}
+      ${r.tienePromocion?'<span class="badge ok">Promoción OK</span>':`<span class="badge wa">Promoción: ${r.motivoIncumplimientoPromo}</span>`}
+      ${r.espacioGanado?'<span class="badge ok">Espacio ganado</span>':''}
+      ${r.tieneQuiebre?'<span class="badge wa">Quiebre de stock</span>':''}
+    </div>
+    <div class="tbl-wrap"><table>
+      <tr><td>Participación en góndola</td><td style="text-align:right;font-weight:700">${r.tieneQuiebre?'—':r.gondolaPct+'%'}</td></tr>
+      <tr><td>Precio sugerido (PVP oficial)</td><td style="text-align:right;font-weight:700">${fmtGs(r.precioSugerido)}</td></tr>
+      <tr><td>Precio observado en el local</td><td style="text-align:right;font-weight:700">${r.tieneQuiebre?'Sin stock':fmtGs(r.precioNuestro)+' '+(r.cumplePrecioPropio?'<span style="color:var(--ok)">(cumple)</span>':'<span style="color:var(--er)">(no cumple)</span>')}</td></tr>
+      <tr><td>Precio ${r.competidorNombre}</td><td style="text-align:right;font-weight:700">${fmtGs(r.precioCompetidor)} ${diffPrecio!=null?`<span style="color:${diffPrecio<=0?'var(--ok)':'var(--er)'}">(${diffPrecio>0?'+':''}${diffPrecio}%)</span>`:''}</td></tr>
+      <tr><td>Unidades repuestas</td><td style="text-align:right;font-weight:700">${r.unidadesRepuestas}</td></tr>
+      <tr><td>Acción de competencia</td><td style="text-align:right;font-weight:700">${r.accionCompetencia}</td></tr>
+    </table></div>`;
+  document.getElementById('modal-photo').classList.add('open');
+}
+document.getElementById('modal-close').onclick = ()=>document.getElementById('modal-photo').classList.remove('open');
+document.getElementById('modal-photo').onclick = e=>{ if(e.target.id==='modal-photo') e.currentTarget.classList.remove('open'); };
+
+// ============================================================
+// COMPARATIVO MENSUAL (Julio vs. Junio) + Índice de competitividad
+// ============================================================
+function rowsDelMes(mes){
+  const desde = `${ANIO_DEMO}-${pad2(mes)}-01`;
+  const hasta = `${ANIO_DEMO}-${pad2(mes)}-31`;
+  return VISITS.filter(v=>{
+    if(v.fecha<desde || v.fecha>hasta) return false;
+    const pdv = pdvById(v.pdvId);
+    if(F.cadena && pdv.chain!==F.cadena) return false;
+    if(F.ciudad && pdv.city!==F.ciudad) return false;
+    if(F.categoria && v.categoria!==F.categoria) return false;
+    return true;
+  });
+}
+function rowsEnRangoFechas(desdeStr, hastaStr){
+  return VISITS.filter(v=>{
+    if(v.fecha<desdeStr || v.fecha>hastaStr) return false;
+    const pdv = pdvById(v.pdvId);
+    if(F.cadena && pdv.chain!==F.cadena) return false;
+    if(F.ciudad && pdv.city!==F.ciudad) return false;
+    if(F.categoria && v.categoria!==F.categoria) return false;
+    return true;
+  });
+}
+function preciosPorProducto(rows){
+  const conStock = rows.filter(r=>!r.tieneQuiebre);
+  return TODOS_PRODUCTOS.map(prod=>{
+    const rs = conStock.filter(r=>r.producto===prod);
+    const nuestro = rs.length? Math.round(rs.reduce((a,r)=>a+r.precioNuestro,0)/rs.length):0;
+    const competidor = rs.length? Math.round(rs.reduce((a,r)=>a+r.precioCompetidor,0)/rs.length):0;
+    const indice = competidor? Math.round(nuestro/competidor*100):100;
+    return {prod, nuestro, competidor, indice, n:rs.length};
+  }).filter(p=>p.n>0);
+}
+function visitasDelDia(fecha){
+  return VISITS.filter(v=>{
+    if(v.fecha!==fecha) return false;
+    const pdv = pdvById(v.pdvId);
+    if(F.cadena && pdv.chain!==F.cadena) return false;
+    if(F.ciudad && pdv.city!==F.ciudad) return false;
+    if(F.categoria && v.categoria!==F.categoria) return false;
+    return true;
+  });
+}
+function indiceCompetitividad(rows){
+  if(!rows.length) return 0;
+  const conStock = rows.filter(r=>!r.tieneQuiebre);
+  const gondolaProm = rows.reduce((a,r)=>a+r.gondolaPct,0)/rows.length;
+  const pctSinAccion = rows.filter(r=>r.accionCompetencia==='Sin acciones').length/rows.length*100;
+  const diffPrecioProm = conStock.length? conStock.reduce((a,r)=>a+((r.precioNuestro-r.precioCompetidor)/r.precioCompetidor*100),0)/conStock.length : 0;
+  const precioScore = diffPrecioProm<=0 ? 100 : Math.max(0,100-diffPrecioProm*4);
+  return Math.round(0.4*gondolaProm + 0.3*pctSinAccion + 0.3*precioScore);
+}
+function serieDiariaMes(mes, metricFn){
+  const dias = new Date(ANIO_DEMO, mes, 0).getDate();
+  const arr = [];
+  for(let d=1; d<=31; d++){
+    if(d>dias){ arr.push(null); continue; }
+    const fechaStr = `${ANIO_DEMO}-${pad2(mes)}-${pad2(d)}`;
+    const rs = VISITS.filter(v=>{
+      if(v.fecha!==fechaStr) return false;
+      const pdv = pdvById(v.pdvId);
+      if(F.cadena && pdv.chain!==F.cadena) return false;
+      if(F.ciudad && pdv.city!==F.ciudad) return false;
+      if(F.categoria && v.categoria!==F.categoria) return false;
+      return true;
+    });
+    arr.push(metricFn(rs));
+  }
+  return arr;
+}
+function metricasMes(rows){
+  return {
+    visitas: rows.length,
+    pdvs: new Set(rows.map(r=>r.pdvId)).size,
+    cumplPct: rows.length? Math.round(rows.filter(r=>r.cumpleCriterios).length/rows.length*100) : 0,
+    gondolaProm: rows.length? Math.round(rows.reduce((a,r)=>a+r.gondolaPct,0)/rows.length) : 0,
+    alertas: rows.filter(r=>r.tieneVencidos||r.tieneAveriados).length,
+    indice: indiceCompetitividad(rows),
+  };
+}
+function deltaBadgePts(actual, anterior){
+  const d = actual-anterior;
+  if(d===0) return `<span class="delta-badge flat"><i class="fas fa-minus"></i> Sin cambios</span>`;
+  const up = d>0;
+  return `<span class="delta-badge ${up?'up':'down'}"><i class="fas fa-arrow-${up?'up':'down'}"></i> ${up?'+':''}${d} pts vs. junio</span>`;
+}
+function deltaBadgePct(actual, anterior){
+  if(!anterior) return `<span class="delta-badge flat"><i class="fas fa-minus"></i> s/d junio</span>`;
+  const d = Math.round((actual-anterior)/anterior*100);
+  if(d===0) return `<span class="delta-badge flat"><i class="fas fa-minus"></i> Sin cambios</span>`;
+  const up = d>0;
+  return `<span class="delta-badge ${up?'up':'down'}"><i class="fas fa-arrow-${up?'up':'down'}"></i> ${up?'+':''}${d}% vs. junio</span>`;
+}
+
+// ============================================================
+// PÁGINA: RESUMEN EJECUTIVO
+// ============================================================
+function renderResumen(){
+  const rows = filterVisits();
+  const jrows = filterJornadas();
+  const totalVisitas = rows.length;
+  const pdvsUnicos = new Set(rows.map(r=>r.pdvId)).size;
+  const cumplPct = rows.length? rows.filter(r=>r.cumpleCriterios).length/rows.length*100 : 0;
+  const vencidosCount = rows.filter(r=>r.tieneVencidos).length;
+  const alertas = rows.filter(r=>r.tieneVencidos||r.tieneAveriados).length;
+  const promotoresActivos = new Set(rows.map(r=>r.promotorId)).size;
+  const gondolaProm = rows.length? rows.reduce((a,r)=>a+r.gondolaPct,0)/rows.length : 0;
+  const pctPuntual = jrows.length? Math.round(jrows.filter(r=>!r.tardanza).length/jrows.length*100) : 100;
+  const disponibilidad = totalVisitas? (1-rows.filter(r=>r.tieneQuiebre).length/totalVisitas)*100 : 100;
+  const periodoLabel = rangoLabel();
+
+  const dominamosPct = totalVisitas? Math.round(100*rows.filter(r=>r.presenciaCompetencia==='Menor').length/totalVisitas) : 0;
+  const empatePct = totalVisitas? Math.round(100*rows.filter(r=>r.presenciaCompetencia==='Igual').length/totalVisitas) : 0;
+  const dominaCompPct = totalVisitas? Math.round(100*rows.filter(r=>r.presenciaCompetencia==='Mayor').length/totalVisitas) : 0;
+
+  const ejecucionPct = totalVisitas? Math.round(100*rows.reduce((s,r)=>s+((r.cumpleCriterios?1:0)+(r.espacioGanado?1:0)+(r.tienePOP?1:0)+(r.tienePrecios?1:0)),0)/(totalVisitas*4)) : 0;
+
+  const omitidas = filterOmitidas();
+  const pdvsFiltrados = PDVS.filter(pdv=>(!F.cadena||pdv.chain===F.cadena)&&(!F.ciudad||pdv.city===F.ciudad));
+  const pdvsFiltradosIds = pdvsFiltrados.map(pdv=>pdv.id);
+  const cumplPlanVisitas = coberturaDeVisitas(pdvsFiltradosIds, rows, omitidas).cumpl;
+
+  // Resumen por clúster: cumplimiento de precio Nova Consumo por cada clúster de rotación (mismo criterio que Cobertura y Precios)
+  const clasifRotacionResumen = clasificarLocalesPorRotacion(pdvsFiltrados, rows);
+  const UMBRAL_CUMPLE_PRECIO = 60; // % de visitas con precio propio conforme, para considerar "cumple" a nivel local (mediana real ~62%)
+  const cumplPropioPorPdv = {};
+  rows.filter(r=>!r.tieneQuiebre).forEach(r=>{
+    if(!cumplPropioPorPdv[r.pdvId]) cumplPropioPorPdv[r.pdvId]={cumple:0,n:0};
+    cumplPropioPorPdv[r.pdvId].n++;
+    if(r.cumplePrecioPropio) cumplPropioPorPdv[r.pdvId].cumple++;
+  });
+  const localCumplePrecio = pdvId => {
+    const c = cumplPropioPorPdv[pdvId];
+    return !!(c && c.n>0 && (c.cumple/c.n*100)>=UMBRAL_CUMPLE_PRECIO);
+  };
+  const resumenClusters = CLUSTER_DEF.map(cd=>{
+    const localesCluster = pdvsFiltrados.filter(pdv=>clasifRotacionResumen.clusterDe(pdv.id)===cd.id);
+    const total = localesCluster.length;
+    const cumplen = localesCluster.filter(pdv=>localCumplePrecio(pdv.id)).length;
+    const porCadena = CHAINS.map(cadena=>{
+      const localesCadena = localesCluster.filter(pdv=>pdv.chain===cadena);
+      const totalCad = localesCadena.length;
+      const cumplenCad = localesCadena.filter(pdv=>localCumplePrecio(pdv.id)).length;
+      return {cadena, cumplen:cumplenCad, total:totalCad, pct: totalCad? Math.round(cumplenCad/totalCad*100):0};
+    }).filter(c=>c.total>0);
+    return {...cd, total, cumplen, pct: total? Math.round(cumplen/total*100):0, porCadena};
+  });
+
+  const catRiesgo = {};
+  rows.filter(r=>!r.tieneQuiebre).forEach(r=>{ if(!catRiesgo[r.categoria]) catRiesgo[r.categoria]={cumple:0,n:0}; catRiesgo[r.categoria].n++; if(r.cumplePrecioPropio) catRiesgo[r.categoria].cumple++; });
+  const categoriasRiesgo = Object.entries(catRiesgo).map(([cat,v])=>({cat,pct:v.n?Math.round(100*v.cumple/v.n):0})).sort((a,b)=>a.pct-b.pct).slice(0,3);
+  const prodRotacion = {};
+  rows.forEach(r=>{ prodRotacion[r.producto]=(prodRotacion[r.producto]||0)+r.unidadesRepuestas; });
+  const topRotacion = Object.entries(prodRotacion).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  const posicionamiento = preciosPorProducto(rows);
+  const masCaras = posicionamiento.filter(p=>p.indice>105).sort((a,b)=>b.indice-a.indice).slice(0,3);
+  const masBaratas = posicionamiento.filter(p=>p.indice<95).sort((a,b)=>a.indice-b.indice).slice(0,3);
+
+  const metas = [
+    {label:'Cumplimiento de criterios', meta:90, real:Math.round(cumplPct)},
+    {label:'Cobertura de PDVs', meta:95, real:Math.round(pdvsUnicos/PDVS.length*100)},
+    {label:'Cumplimiento del plan de visitas', meta:90, real:cumplPlanVisitas},
+    {label:'Participación en góndola', meta:35, real:Math.round(gondolaProm)},
+    {label:'Disponibilidad de stock', meta:95, real:Math.round(disponibilidad)},
+    {label:'Asistencia puntual', meta:95, real:pctPuntual},
+    {label:'PDVs sin vencidos', meta:98, real: totalVisitas? Math.round((1-vencidosCount/totalVisitas)*100) : 100},
+    {label:'Cumplimiento de ejecución', meta:90, real:ejecucionPct},
+  ];
+
+  const julio = metricasMes(rowsDelMes(7));
+  const junio = metricasMes(rowsDelMes(6));
+
+  document.getElementById('content').innerHTML = `
+    <div class="banner"><i class="fas fa-info-circle"></i> Panel de demostración — toda la información (visitas, PDVs, alertas) es ficticia y se genera en el navegador para fines comerciales.</div>
+    <div class="grid grid-kpi" style="margin-bottom:18px">
+      ${kpiCard('Visitas totales', totalVisitas, periodoLabel, 'fa-clipboard-check', temaActivoIdx===0?'--ok':'--brand2','k-visitas','cobertura')}
+      ${kpiCard('PDVs cubiertos', pdvsUnicos, `de ${PDVS.length} puntos totales — al menos 1 visita`, 'fa-store', '--ok','k-pdvs','cobertura')}
+      ${kpiCard('Cumplimiento', Math.round(cumplPct), 'promedio de criterios — ver Cobertura', 'fa-check-circle', '--ok','k-cumpl','cobertura')}
+      ${kpiCard('Alertas activas', alertas, 'vencidos, por vencer y averiados', 'fa-exclamation-triangle', '--er','k-alertas','alertas')}
+      ${kpiCard('Promotores activos', promotoresActivos, `de ${PROMOTERS.length} en nómina — ver Jornada`, 'fa-users', '--bl','k-promotores','jornada')}
+      ${kpiCard('Góndola promedio', Math.round(gondolaProm), 'participación de espacio', 'fa-border-all', '--vi','k-gondola','auditoria')}
+      ${kpiCard('Cumplimiento de ejecución', ejecucionPct, 'criterios + espacios + POP + precios — detalle en Auditoría de PDV', 'fa-clipboard-check', ejecucionPct>=85?'--ok':ejecucionPct>=60?'--wa':'--er','k-ejecucion','auditoria')}
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <h2 style="font-size:16px;margin-bottom:2px">Resumen por clúster</h2>
+      <p style="font-size:12px;color:var(--tx3);margin-bottom:16px">Cumplimiento de precio Nova Consumo por grupo de rotación — mismos clústeres H/A/B/C que Cobertura y Precios</p>
+      ${infoTip('Locales agrupados por rotación (unidades repuestas): H = top 10%, A = 10-30%, B = 30-60%, C = 60-100%. El % muestra cuántos locales de cada grupo cumplen el precio sugerido (≥60% de sus visitas con precio propio conforme).')}
+      <div class="grid grid-2e" style="gap:14px">
+        ${resumenClusters.map(c=>{
+          const abierto = resumenClusterAbiertos.has(c.id);
+          const colorBar = c.id==='C' ? '#D13838' : '#BA7819';
+          return `<article class="cljcard">
+            <div class="cljcard-hdr">
+              <div class="cljcard-title">${c.label}${c.id==='C'?'<span class="cljbadge-alta">Prioridad alta</span>':''}</div>
+              <div class="cljcard-pct">${c.pct}%</div>
+            </div>
+            <div class="cljbar-track"><div class="cljbar-fill" style="width:${c.pct}%;background:${colorBar}"></div></div>
+            <div class="cljcard-info">${c.cumplen} de ${c.total} locales cumplen con el precio sugerido</div>
+            <div class="cljcard-toggle ${abierto?'open':''}" data-clj="${c.id}"><i class="fas fa-chevron-down"></i><span>Ver por cadena</span></div>
+            <div class="cljcard-panel ${abierto?'open':''}" data-clj-panel="${c.id}">
+              <table class="cljcard-table"><thead><tr><th>Cadena</th><th>Cumplen precio</th><th>Total locales</th><th>%</th></tr></thead><tbody>
+                ${c.porCadena.map(pc=>`<tr><td>${pc.cadena}</td><td>${pc.cumplen}</td><td>${pc.total}</td><td>${pc.pct}%</td></tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--tx3)">Sin locales en este clúster</td></tr>`}
+              </tbody></table>
+            </div>
+            <a class="cljcard-link" onclick="goPage('precios')">Ver sucursales en Precios <i class="fas fa-arrow-right"></i></a>
+          </article>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="grid grid-3" style="margin-bottom:16px">
+      <div class="card" style="cursor:pointer" onclick="goPage('precios')">
+        <div class="card-hdr"><div><div class="card-title">Ranking de categorías</div><div class="card-sub">por rotación de producto</div></div><div class="card-nav-hint">Ver detalle <i class="fas fa-arrow-right"></i></div></div>
+        ${topRotacion.map(([p,unid],i)=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px"><span style="color:var(--tx2)">${p}</span><span style="font-weight:700">${unid} unid.</span></div><div style="height:6px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round(unid/(topRotacion[0][1]||1)*100)}%;background:${i===0?chartAccent():'var(--tx3)'}"></div></div></div>`).join('') || `<div style="color:var(--tx3);font-size:12px;text-align:center;padding:20px 0">Sin datos</div>`}
+        ${infoTip('Top 3 productos por unidades repuestas totales en el período (suma de reposición registrada en cada visita).')}
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Riesgos y oportunidades</div></div>
+        <div style="font-size:9.5px;font-weight:700;color:var(--er);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">⚠ Menor cumplimiento de precio</div>
+        ${categoriasRiesgo.map(cc=>`<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--bd)"><span>${cc.cat}</span><span style="font-weight:700;color:${cc.pct<70?'var(--er)':'var(--wa)'}">${cc.pct}%</span></div>`).join('') || `<div style="color:var(--tx3);font-size:11.5px">Sin datos suficientes</div>`}
+        <div style="font-size:9.5px;font-weight:700;color:var(--ok);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px">📈 Mejor rotación</div>
+        ${topRotacion.map(([p,unid])=>`<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--bd)"><span>${p}</span><span style="font-weight:700;color:var(--ok)">${unid} unid.</span></div>`).join('') || `<div style="color:var(--tx3);font-size:11.5px">Sin datos suficientes</div>`}
+        ${infoTip('Las 3 categorías con menor % de cumplimiento de precio propio (rojo si &lt;70%, amarillo si ≥70%), y los 3 productos con más unidades repuestas.')}
+      </div>
+      <div class="card" style="cursor:pointer" onclick="goPage('precios')">
+        <div class="card-hdr"><div><div class="card-title">Posicionamiento competitivo</div><div class="card-sub">precio Nova Consumo vs. promedio de la categoría</div></div><div class="card-nav-hint">Ver detalle <i class="fas fa-arrow-right"></i></div></div>
+        <div style="font-size:9.5px;font-weight:700;color:var(--er);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Más caras que su categoría</div>
+        ${masCaras.map(m=>`<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--bd)"><span>${m.prod}</span><span style="font-weight:700;color:var(--er)">+${m.indice-100}%</span></div>`).join('') || `<div style="color:var(--tx3);font-size:11.5px">Ninguna</div>`}
+        <div style="font-size:9.5px;font-weight:700;color:var(--ok);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px">Más económicas que su categoría</div>
+        ${masBaratas.map(m=>`<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--bd)"><span>${m.prod}</span><span style="font-weight:700;color:var(--ok)">${m.indice-100}%</span></div>`).join('') || `<div style="color:var(--tx3);font-size:11.5px">Ninguna</div>`}
+        ${infoTip('Índice de precio = precio Nova Consumo ÷ precio promedio de la categoría × 100. &gt;105 = más cara que su categoría, &lt;95 = más económica.')}
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr"><div><div class="card-title">Julio vs. Junio</div><div class="card-sub">Comparativo mensual e índice de competitividad</div></div></div>
+      ${infoTip('Índice de competitividad (0-100): pondera participación en góndola, ausencia de acciones agresivas de la competencia y competitividad de precio. La variación compara el valor de julio contra junio.')}
+      <div class="grid grid-2" style="align-items:stretch">
+        <div>
+          <div class="roi-lbl" style="margin-bottom:6px">Índice de competitividad<small>Pondera participación en góndola, ausencia de acciones agresivas de la competencia y competitividad de precio</small></div>
+          <div class="impact-hero"><span class="big" style="color:${chartAccent2()}">${julio.indice}</span><span style="color:var(--tx3);font-size:13px">/ 100</span>${deltaBadgePts(julio.indice, junio.indice)}</div>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>Métrica</th><th>Junio</th><th>Julio</th><th>Variación</th></tr></thead><tbody>
+          <tr><td>Visitas</td><td class="mono">${fmtInt(junio.visitas)}</td><td class="mono">${fmtInt(julio.visitas)}</td><td>${deltaBadgePct(julio.visitas, junio.visitas)}</td></tr>
+          <tr><td>PDVs cubiertos</td><td class="mono">${junio.pdvs}</td><td class="mono">${julio.pdvs}</td><td>${deltaBadgePct(julio.pdvs, junio.pdvs)}</td></tr>
+          <tr><td>Cumplimiento</td><td class="mono">${junio.cumplPct}%</td><td class="mono">${julio.cumplPct}%</td><td>${deltaBadgePts(julio.cumplPct, junio.cumplPct)}</td></tr>
+          <tr><td>Góndola</td><td class="mono">${junio.gondolaProm}%</td><td class="mono">${julio.gondolaProm}%</td><td>${deltaBadgePts(julio.gondolaProm, junio.gondolaProm)}</td></tr>
+          <tr><td>Alertas</td><td class="mono">${junio.alertas}</td><td class="mono">${julio.alertas}</td><td>${deltaBadgePct(julio.alertas, junio.alertas)}</td></tr>
+        </tbody></table></div>
+      </div>
+      <div style="margin-top:18px">
+        <div class="card-sub" style="margin-bottom:8px;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.3px">Cumplimiento diario, día a día</div>
+        <div class="chart-wrap" style="height:220px"><canvas id="ch-mesalinea"></canvas></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr"><div><div class="card-title">Metas vs. cumplimiento</div><div class="card-sub">Objetivos comerciales definidos vs. resultado real del período</div></div></div>
+      <div class="chart-wrap" style="height:220px"><canvas id="ch-metas"></canvas></div>
+      <div style="display:flex;gap:14px;font-size:10.5px;flex-wrap:wrap;margin-top:10px;color:var(--tx3)">
+        <span><span class="dot ok"></span> Alcanza o supera la meta</span>
+        <span><span class="dot wa"></span> Cerca (≥85% de la meta)</span>
+        <span><span class="dot er"></span> Lejos (&lt;85% de la meta)</span>
+      </div>
+      ${infoTip('Cada barra "Real" es el % efectivamente logrado en el período contra la meta comercial definida para ese indicador. El color depende de qué tan cerca está del 100% de su propia meta, no del valor absoluto.')}
+    </div>
+    <div class="grid grid-3">
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Presencia de competencia en el PDV</div><div class="card-sub">Quién domina el espacio de exhibición</div></div></div>
+        <div style="height:14px;border-radius:7px;overflow:hidden;display:flex;gap:2px;margin:8px 0 12px">
+          ${dominamosPct?`<div style="flex:${dominamosPct};background:var(--ok)"></div>`:''}
+          ${empatePct?`<div style="flex:${empatePct};background:var(--bl)"></div>`:''}
+          ${dominaCompPct?`<div style="flex:${dominaCompPct};background:var(--er)"></div>`:''}
+        </div>
+        <div style="display:flex;gap:10px;font-size:10.5px;flex-wrap:wrap">
+          <span><span class="dot ok"></span> Dominamos (${dominamosPct}%)</span>
+          <span><span class="dot bl"></span> Empate (${empatePct}%)</span>
+          <span><span class="dot er"></span> Competencia (${dominaCompPct}%)</span>
+        </div>
+        ${infoTip('Encuesta independiente registrada en cada visita sobre quién domina el espacio de exhibición en el PDV: nosotros, empate o la competencia.')}</div>
+      <div class="card"><div class="card-hdr"><div><div class="card-title">% Cumplimiento por cadena</div><div class="card-sub">Criterios de visibilidad y exhibición</div></div></div>
+        <div class="chart-wrap sm"><canvas id="ch-cadena"></canvas></div>${pctLegend()}
+        ${infoTip('% de visitas que cumplen los criterios de visibilidad/exhibición, por cadena: (visitas con criterios cumplidos ÷ visitas totales de la cadena) × 100.')}</div>
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Alertas recientes</div><div class="card-sub">Últimos vencimientos y averías detectados</div></div></div>
+        <div id="lista-alertas-mini"></div>
+        ${infoTip('Últimas alertas de productos vencidos, próximos a vencer o averiados detectados en las visitas — detalle completo en Averiados y Vencimientos.')}</div>
+    </div>`;
+
+  animateNum(document.getElementById('k-visitas'), totalVisitas);
+  animateNum(document.getElementById('k-pdvs'), pdvsUnicos);
+  animateNum(document.getElementById('k-cumpl'), Math.round(cumplPct), '%');
+  animateNum(document.getElementById('k-alertas'), alertas);
+  animateNum(document.getElementById('k-promotores'), promotoresActivos);
+  animateNum(document.getElementById('k-gondola'), Math.round(gondolaProm), '%');
+  animateNum(document.getElementById('k-ejecucion'), ejecucionPct, '%');
+
+  mkChart('ch-metas',{type:'bar',data:{labels:metas.map(m=>m.label),datasets:[
+      {label:'Meta',data:metas.map(m=>m.meta),backgroundColor:getComputedStyle(document.documentElement).getPropertyValue('--tx3').trim()||'#8c919c',borderRadius:5,maxBarThickness:18},
+      {label:'Real',data:metas.map(m=>m.real),backgroundColor:metas.map(m=>metaColor(m.real,m.meta)),borderRadius:5,maxBarThickness:18},
+    ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:11}}}},
+      scales:{x:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.06)'}},y:{grid:{display:false}}}}});
+
+  const serieJunio = serieDiariaMes(6, rs=>rs.length? Math.round(rs.filter(r=>r.cumpleCriterios).length/rs.length*100) : null);
+  const serieJulio = serieDiariaMes(7, rs=>rs.length? Math.round(rs.filter(r=>r.cumpleCriterios).length/rs.length*100) : null);
+  mkChart('ch-mesalinea',{type:'line',data:{labels:[...Array(31)].map((_,i)=>i+1),datasets:[
+      {label:'Junio',data:serieJunio,borderColor:'#9c9494',backgroundColor:'transparent',tension:.3,pointRadius:2,spanGaps:true},
+      {label:'Julio',data:serieJulio,borderColor:chartAccent2(),backgroundColor:chartAccent2()+'22',fill:true,tension:.3,pointRadius:2,spanGaps:true},
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:11}}}},
+      scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.06)'},title:{display:true,text:'% Cumplimiento',color:getComputedStyle(document.body).color,font:{size:10.5}}},
+        x:{grid:{display:false},title:{display:true,text:'Día del mes',color:getComputedStyle(document.body).color,font:{size:10.5}}}}}});
+
+  const cadenaPct = CHAINS.map(c=>{
+    const rs = rows.filter(r=>pdvById(r.pdvId).chain===c);
+    return rs.length? Math.round(rs.filter(r=>r.cumpleCriterios).length/rs.length*100) : 0;
+  });
+  mkChart('ch-cadena',{type:'bar',data:{labels:CHAINS,datasets:[{label:'% Cumplimiento',data:cadenaPct,backgroundColor:cadenaPct.map(pctColor),borderRadius:6,maxBarThickness:40}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.06)'}},x:{grid:{display:false}}}}});
+
+  const alertRows = rows.filter(r=>r.tieneVencidos||r.tieneAveriados).sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,5);
+  document.getElementById('lista-alertas-mini').innerHTML = alertRows.length ? alertRows.map(r=>{
+    const pdv=pdvById(r.pdvId), prom=promoterById(r.promotorId);
+    const productos = r.tieneVencidos ? r.productos : r.productosAveriados;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd)">
+      <div><div style="font-weight:700;font-size:12.5px">${pdv.name}</div><div style="font-size:11px;color:var(--tx3)">${prom.name} · ${dateDisplay(r.fecha)} · ${productos.join(', ')}</div></div>
+      ${r.tieneVencidos ? badgeVenc(r.estadoVenc) : badgeAveria()}</div>`;
+  }).join('') : `<div style="color:var(--tx3);text-align:center;padding:30px 0"><i class="fas fa-check-circle" style="font-size:22px;display:block;margin-bottom:8px;color:var(--ok)"></i>Sin alertas en el período</div>`;
+
+  document.querySelectorAll('.cljcard-toggle').forEach(el=>{
+    el.onclick = ()=>{
+      const id = el.dataset.clj;
+      const panel = document.querySelector(`[data-clj-panel="${id}"]`);
+      const abierto = el.classList.toggle('open');
+      panel.classList.toggle('open', abierto);
+      if(abierto) resumenClusterAbiertos.add(id); else resumenClusterAbiertos.delete(id);
+    };
+  });
+}
+
+// ============================================================
+// PÁGINA: COBERTURA
+// ============================================================
+function renderCobertura(){
+  const rows = filterVisits();
+  const omitidas = filterOmitidas();
+  const visitasPorCiudadChart = CITIES.map(c=>({nombre:c, visitas: rows.filter(r=>pdvById(r.pdvId).city===c).length}));
+
+  const pdvsFiltrados = PDVS.filter(pdv => (!F.cadena||pdv.chain===F.cadena) && (!F.ciudad||pdv.city===F.ciudad));
+
+  // Visitas esperadas = realizadas + omitidas (portfolio del promotor, día a día, dentro del período filtrado)
+  const realizadasPorPdv = {}, omitidasPorPdv = {}, motivosPorPdv = {};
+  rows.forEach(v=>{ realizadasPorPdv[v.pdvId]=(realizadasPorPdv[v.pdvId]||0)+1; });
+  omitidas.forEach(o=>{
+    omitidasPorPdv[o.pdvId]=(omitidasPorPdv[o.pdvId]||0)+1;
+    if(!motivosPorPdv[o.pdvId]) motivosPorPdv[o.pdvId]={};
+    motivosPorPdv[o.pdvId][o.motivo]=(motivosPorPdv[o.pdvId][o.motivo]||0)+1;
+  });
+  const motivoPrincipal = pdvId => {
+    const m = motivosPorPdv[pdvId];
+    if(!m) return null;
+    const [motivo,n] = Object.entries(m).sort((a,b)=>b[1]-a[1])[0];
+    return `${motivo} (${n})`;
+  };
+  const statsPorPdv = pdvsFiltrados.map(pdv=>{
+    const realizadas = realizadasPorPdv[pdv.id]||0;
+    const omit = omitidasPorPdv[pdv.id]||0;
+    const esperadas = realizadas+omit;
+    const cumpl = esperadas? Math.round(realizadas/esperadas*100):100;
+    return {pdv, realizadas, esperadas, cumpl, motivo: cumpl<100? motivoPrincipal(pdv.id):null};
+  });
+  const badgeCumplVisita = pct => `<span class="badge ${pct>=95?'ok':pct>=80?'wa':'er'}">${pct}%</span>`;
+  const agrupar = (statsArr, keyFn) => {
+    const map = {};
+    statsArr.forEach(s=>{
+      const k = keyFn(s.pdv);
+      if(!map[k]) map[k]={nombre:k, realizadas:0, esperadas:0, pdvs:0};
+      map[k].realizadas += s.realizadas; map[k].esperadas += s.esperadas; map[k].pdvs++;
+    });
+    return Object.values(map).map(g=>({...g, cumpl: g.esperadas? Math.round(g.realizadas/g.esperadas*100):100})).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  };
+
+  const porCadenaStats = agrupar(statsPorPdv, pdv=>pdv.chain).sort((a,b)=>CHAINS.indexOf(a.nombre)-CHAINS.indexOf(b.nombre));
+
+  const VENTANA_RECIENTE = 15; // días
+  const ultimaVisitaPorPdv = {};
+  rows.forEach(v=>{
+    if(!ultimaVisitaPorPdv[v.pdvId] || v.fecha>ultimaVisitaPorPdv[v.pdvId]) ultimaVisitaPorPdv[v.pdvId]=v.fecha;
+  });
+  const fechaReferencia = F.fechaHasta || FECHA_MAX;
+  const [refY,refM,refD] = fechaReferencia.split('-').map(Number);
+  const fechaRefDate = new Date(refY,refM-1,refD);
+  const diasDesde = fecha => { const [y,m,d]=fecha.split('-').map(Number); return Math.round((fechaRefDate-new Date(y,m-1,d))/86400000); };
+  // Clústeres de locales por rotación (unidades repuestas) en el período filtrado
+  const CLUSTER_UI = [...CLUSTER_DEF, {id:'SIN', label:'Sin clasificar', color:null}];
+  const clasifRotacion = clasificarLocalesPorRotacion(pdvsFiltrados, rows);
+  const rotacionPorPdvGlobal = {};
+  rows.forEach(r=>rotacionPorPdvGlobal[r.pdvId]=(rotacionPorPdvGlobal[r.pdvId]||0)+r.unidadesRepuestas);
+  const clustersPorLocal = pdvsFiltrados.map(pdv=>({pdv, unid:rotacionPorPdvGlobal[pdv.id]||0, cluster: clasifRotacion.clusterDe(pdv.id)||'SIN'})).sort((a,b)=>b.unid-a.unid);
+  const clusterResumen = CLUSTER_UI.map(c=>({...c, n: clustersPorLocal.filter(r=>r.cluster===c.id).length}));
+  const clustersVisibles = coberturaClusterFiltro? clustersPorLocal.filter(r=>r.cluster===coberturaClusterFiltro) : clustersPorLocal;
+
+  const localesSinVisitar = pdvsFiltrados.map(pdv=>{
+    const ultima = ultimaVisitaPorPdv[pdv.id]||null;
+    const dias = ultima? diasDesde(ultima) : null;
+    const fechasNoCubiertas = omitidas.filter(o=>o.pdvId===pdv.id && diasDesde(o.fecha)<=VENTANA_RECIENTE).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    return {pdv, ultima, dias, promotor:promotorDePdv(pdv.id), fechasNoCubiertas};
+  }).filter(z=>z.fechasNoCubiertas.length>0 || z.ultima==null).sort((a,b)=> b.fechasNoCubiertas.length-a.fechasNoCubiertas.length || (b.dias??9999)-(a.dias??9999));
+
+  document.getElementById('content').innerHTML = `
+    <div class="grid grid-2" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Mapa de puntos de venta</div><div class="card-sub">${PDVS.length} PDVs en Paraguay · color según estado de cumplimiento</div></div></div>
+        <div id="map-cobertura"></div>
+        <div style="display:flex;gap:16px;margin-top:12px;font-size:11.5px;color:var(--tx2);flex-wrap:wrap">
+          <span><span class="dot ok"></span> Cumple</span><span><span class="dot wa"></span> Cumplimiento bajo</span><span><span class="dot er"></span> Con vencidos</span><span><span class="dot" style="background:var(--tx3)"></span> Sin visitas</span>
+        </div>
+        ${infoTip('Cada PDV se colorea según su última visita: verde si cumplió criterios, amarillo si el cumplimiento fue bajo, rojo si tenía productos vencidos, gris si no tiene visitas registradas.')}</div>
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Visitas por ciudad</div></div></div>
+        <div class="chart-wrap"><canvas id="ch-ciudad"></canvas></div>
+        ${infoTip('Cantidad total de visitas realizadas por ciudad en el período filtrado.')}</div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr">
+        <div><div class="card-title">Detalle de cobertura</div><div class="card-sub">Visitas esperadas vs. realizadas — ordenado por cadena y local · hacé clic en una cadena para desplegar sus locales</div></div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr>
+        <th>Cadena / Local</th><th>Promotor</th><th>Visitas esperadas</th><th>Visitas realizadas</th><th>Cumplimiento</th><th>Motivo si no llegó al 100%</th>
+      </tr></thead><tbody>
+      ${porCadenaStats.map(ca=>{
+        const cadenaAbierta = coberturaCadenasAbiertas.has(ca.nombre);
+        let filaCadena = `<tr class="cob-row-cadena" data-cadena="${ca.nombre}" style="cursor:pointer;font-weight:700"><td><i class="fas fa-chevron-${cadenaAbierta?'down':'right'}" style="font-size:10px;width:16px;color:var(--tx3)"></i>${ca.nombre}</td><td></td><td>${ca.esperadas}</td><td>${ca.realizadas}</td><td>${badgeCumplVisita(ca.cumpl)}</td><td></td></tr>`;
+        if(!cadenaAbierta) return filaCadena;
+        const locales = statsPorPdv.filter(s=>s.pdv.chain===ca.nombre).sort((a,b)=>a.pdv.city.localeCompare(b.pdv.city)||a.pdv.name.localeCompare(b.pdv.name));
+        const filasLocal = locales.map(s=>{ const prom=promotorDePdv(s.pdv.id); return `<tr style="background:var(--bg3)"><td style="padding-left:30px;font-weight:400">${s.pdv.name}</td><td style="font-size:11.5px">${prom?prom.name:'—'}</td><td>${s.esperadas}</td><td>${s.realizadas}</td><td>${badgeCumplVisita(s.cumpl)}</td><td style="font-size:11px;color:var(--tx2)">${s.motivo||'—'}</td></tr>`; }).join('');
+        return filaCadena+filasLocal;
+      }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">Sin datos</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('Cumplimiento = visitas realizadas ÷ visitas esperadas (esperadas = realizadas + omitidas por el promotor) × 100, por cadena y por local.')}
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr"><div><div class="card-title">Clústeres de locales por rotación</div><div class="card-sub">Ranking de los ${pdvsFiltrados.length} locales según unidades repuestas en el período — H es el grupo de mejor desempeño, C el que necesita más atención</div></div></div>
+      ${infoTip('Locales ordenados por unidades repuestas y agrupados en clústeres: H = top 10%, A = 10-30%, B = 30-60%, C = 60-100%. Locales con menos de 3 visitas en el período quedan "Sin clasificar".')}
+      <div class="grid grid-kpi" style="margin-bottom:14px">
+        ${clusterResumen.map(c=>`<div class="kpi ${coberturaClusterFiltro===c.id?'t-ok':''}" id="cob-cluster-${c.id}" style="cursor:pointer;border-color:${coberturaClusterFiltro===c.id&&c.color?`var(--${c.color})`:''}"><div class="kpi-lbl">${c.label}</div><div class="kpi-val" style="color:${c.color?`var(--${c.color})`:'var(--tx3)'}">${c.n}</div><div class="kpi-sub">locales</div></div>`).join('')}
+      </div>
+      ${coberturaClusterFiltro?`<div class="banner"><i class="fas fa-filter"></i> Filtrando por ${CLUSTER_UI.find(c=>c.id===coberturaClusterFiltro).label} — <span style="cursor:pointer;text-decoration:underline" id="cob-cluster-clear">ver todos</span></div>`:''}
+      <div class="tbl-wrap" style="max-height:360px;overflow-y:auto"><table><thead><tr><th>#</th><th>Local</th><th>Cadena</th><th>Ciudad</th><th>Rotación (unid.)</th><th>Clúster</th></tr></thead><tbody>
+        ${clustersVisibles.map((r,i)=>{ const def=CLUSTER_UI.find(c=>c.id===r.cluster); return `<tr><td>${i+1}</td><td style="font-weight:700">${r.pdv.name}</td><td>${r.pdv.chain}</td><td>${r.pdv.city}</td><td class="mono">${fmtInt(r.unid)}</td><td>${def.color?`<span class="badge ${def.color}">${r.cluster}</span>`:`<span class="badge" style="background:var(--bg4);color:var(--tx3)">Sin clasificar</span>`}</td></tr>`; }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">Sin datos</td></tr>`}
+      </tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Locales sin visitar</div><div class="card-sub">${localesSinVisitar.length} de ${pdvsFiltrados.length} PDVs con al menos una visita no realizada en los últimos ${VENTANA_RECIENTE} días</div></div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>PDV</th><th>Cadena</th><th>Ciudad</th><th>Promotor</th><th>Fechas sin cubrir (últimos ${VENTANA_RECIENTE} días)</th><th>Alerta</th></tr></thead><tbody>
+      ${localesSinVisitar.map(z=>{
+        const detalleFechas = z.fechasNoCubiertas.slice(0,5).map(f=>`${dateDisplay(f.fecha)} — ${f.motivo}`).join('<br>') || '—';
+        const reincidente = z.fechasNoCubiertas.length>1;
+        return `<tr><td style="font-weight:700">${z.pdv.name}</td><td>${z.pdv.chain}</td><td>${z.pdv.city}</td><td>${z.promotor?z.promotor.name:'—'}</td><td style="font-size:11px;color:var(--tx2)">${detalleFechas}</td><td>${reincidente?`<span class="badge er"><i class="fas fa-triangle-exclamation"></i> Reincidente (${z.fechasNoCubiertas.length}x)</span>`:'—'}</td></tr>`;
+      }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px"><i class="fas fa-check-circle" style="color:var(--ok);margin-right:6px"></i>Todos los PDVs con visita en los últimos ${VENTANA_RECIENTE} días</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('PDVs con al menos una visita planificada y no realizada (omitida) en los últimos '+VENTANA_RECIENTE+' días. "Reincidente" = más de una fecha sin cubrir en esa ventana.')}
+    </div>`;
+
+  document.querySelectorAll('.cob-row-cadena').forEach(el=>{
+    el.onclick = ()=>{ const c=el.dataset.cadena; if(coberturaCadenasAbiertas.has(c)) coberturaCadenasAbiertas.delete(c); else coberturaCadenasAbiertas.add(c); renderCobertura(); };
+  });
+
+  CLUSTER_UI.forEach(c=>{
+    const el = document.getElementById('cob-cluster-'+c.id);
+    if(el) el.onclick = ()=>{ coberturaClusterFiltro = coberturaClusterFiltro===c.id? null : c.id; renderCobertura(); };
+  });
+  const clusterClear = document.getElementById('cob-cluster-clear');
+  if(clusterClear) clusterClear.onclick = ()=>{ coberturaClusterFiltro=null; renderCobertura(); };
+
+  mkChart('ch-ciudad',{type:'bar',data:{labels:visitasPorCiudadChart.map(c=>c.nombre),datasets:[{label:'Visitas',data:visitasPorCiudadChart.map(c=>c.visitas),backgroundColor:chartAccent(),borderRadius:6,maxBarThickness:34}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'}},y:{grid:{display:false}}}}});
+
+  if(mapCobertura){ mapCobertura.remove(); mapCobertura=null; }
+  mapCobertura = L.map('map-cobertura',{scrollWheelZoom:false}).setView([-25.6,-56.5],6.6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(mapCobertura);
+  PDVS.forEach(pdv=>{
+    const rs = rows.filter(r=>r.pdvId===pdv.id);
+    let color='#5a5252';
+    if(rs.length){
+      const conVenc = rs.some(r=>r.tieneVencidos);
+      const cumpl = rs.filter(r=>r.cumpleCriterios).length/rs.length*100;
+      color = conVenc ? '#e84a55' : (cumpl>=80 ? '#3AAFA0' : '#e8a045');
+    }
+    const marker = L.circleMarker([pdv.lat,pdv.lng],{radius:6,color,fillColor:color,fillOpacity:.85,weight:1.5}).addTo(mapCobertura);
+    marker.bindPopup(`<b>${pdv.name}</b><br>${rs.length} visitas en el período`);
+  });
+  setTimeout(()=>mapCobertura && mapCobertura.invalidateSize(), 150);
+}
+
+// ============================================================
+// PÁGINA: AUDITORÍA DE PUNTO DE VENTA
+// ============================================================
+function renderAuditoria(){
+  const all = filterVisits();
+  const n = all.length;
+  const conStock = all.filter(r=>!r.tieneQuiebre);
+  const gondolaProm = n? all.reduce((a,r)=>a+r.gondolaPct,0)/n : 0;
+  const pctPOP = n? all.filter(r=>r.tienePOP).length/n*100 : 0;
+  const espaciosGanadosN = all.filter(r=>r.espacioGanado).length;
+  const espaciosPct = n? Math.round(100*espaciosGanadosN/n) : 0;
+  const materialesPct = n? Math.round((espaciosPct+pctPOP)/2) : 0;
+  const quiebres = all.filter(r=>r.tieneQuiebre).length;
+  const disponibilidad = n? (1-quiebres/n)*100 : 100;
+  const cumplePrecioPct = conStock.length? conStock.filter(r=>r.cumplePrecioPropio).length/conStock.length*100 : 0;
+  const promoPct = n? all.filter(r=>r.tienePromocion).length/n*100 : 0;
+  const coberturaPct = n? Math.round(100*all.filter(r=>r.cumpleCriterios).length/n) : 0;
+  const dominamosPct = n? Math.round(100*all.filter(r=>r.presenciaCompetencia==='Menor').length/n) : 0;
+  const empatePct = n? Math.round(100*all.filter(r=>r.presenciaCompetencia==='Igual').length/n) : 0;
+  const dominaCompPct = n? Math.round(100*all.filter(r=>r.presenciaCompetencia==='Mayor').length/n) : 0;
+
+  const gondolaCadena = CHAINS.map(c=>{
+    const rs = all.filter(r=>pdvById(r.pdvId).chain===c);
+    return rs.length? Math.round(rs.reduce((a,r)=>a+r.gondolaPct,0)/rs.length):0;
+  });
+  const gondolaCadenaComp = CHAINS.map(c=>{
+    const rs = all.filter(r=>pdvById(r.pdvId).chain===c);
+    return rs.length? Math.round(rs.reduce((a,r)=>a+r.gondolaPctCompetidor,0)/rs.length):0;
+  });
+  const disponibilidadCadena = CHAINS.map(c=>{
+    const rs = all.filter(r=>pdvById(r.pdvId).chain===c);
+    return rs.length? Math.round((1-rs.filter(r=>r.tieneQuiebre).length/rs.length)*100):100;
+  });
+  const accionesCount = {};
+  all.forEach(r=>accionesCount[r.accionCompetencia]=(accionesCount[r.accionCompetencia]||0)+1);
+  const accionesLabels = Object.keys(accionesCount);
+  const popPdvRows = auditoriaPdvFiltro ? all.filter(r=>r.pdvId===auditoriaPdvFiltro) : all;
+  const popCount = {};
+  popPdvRows.filter(r=>r.tienePOP).forEach(r=>popCount[r.popTipo]=(popCount[r.popTipo]||0)+1);
+  const pdvsConDatos = PDVS.filter(pdv=>all.some(r=>r.pdvId===pdv.id)).sort((a,b)=>a.name.localeCompare(b.name));
+
+  const porCadena = CHAINS.map(cadena=>{
+    const rs = all.filter(r=>pdvById(r.pdvId).chain===cadena);
+    return {
+      cadena, n:rs.length,
+      cobertura: rs.length?Math.round(100*rs.filter(r=>r.cumpleCriterios).length/rs.length):0,
+      materiales: rs.length?Math.round(100*(rs.filter(r=>r.espacioGanado).length+rs.filter(r=>r.tienePOP).length)/(2*rs.length)):0,
+      promociones: rs.length?Math.round(100*rs.filter(r=>r.tienePromocion).length/rs.length):0,
+      dominaCompetencia: rs.length?Math.round(100*rs.filter(r=>r.presenciaCompetencia==='Mayor').length/rs.length):0,
+    };
+  }).sort((a,b)=>b.n-a.n);
+  const cadenasEnRiesgo = porCadena.filter(c=>c.n>=3 && c.dominaCompetencia>=30).sort((a,b)=>b.dominaCompetencia-a.dominaCompetencia).slice(0,3);
+  const promoFallidas = all.filter(r=>!r.tienePromocion).sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,8);
+
+  document.getElementById('content').innerHTML = `
+    <div class="grid grid-kpi" style="margin-bottom:18px">
+      ${kpiCard('Cobertura de criterios', coberturaPct, `${n} relevamientos en el período`, 'fa-clipboard-check', coberturaPct>=85?'--ok':coberturaPct>=60?'--wa':'--er','k-cobertura')}
+      ${kpiCard('Participación en góndola', Math.round(gondolaProm), 'promedio del período', 'fa-border-all', '--vi','k-gondola2')}
+      ${kpiCard('Disponibilidad de stock', Math.round(disponibilidad), `${quiebres} quiebres detectados`, 'fa-box-open', quiebres?'--wa':'--ok','k-disp')}
+      ${kpiCard('Cumplimiento de precio Nova Consumo', Math.round(cumplePrecioPct), 'vs. precio público sugerido — ver Precios', 'fa-tag', '--bl','k-cumplprecio','precios')}
+      ${kpiCard('Cumplimiento de promociones', Math.round(promoPct), `de ${n} visitas relevadas`, 'fa-bullhorn', promoPct>=85?'--ok':promoPct>=60?'--wa':'--er','k-promo')}
+      ${kpiCard('Estado de materiales', materialesPct, `espacios ${espaciosPct}% + POP ${Math.round(pctPOP)}%`, 'fa-box', materialesPct>=85?'--ok':materialesPct>=60?'--wa':'--er','k-materiales')}
+    </div>
+    <div class="grid grid-2e" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Participación en góndola por cadena</div><div class="card-sub">% de espacio de exhibición, Nova Consumo vs. competencia</div></div></div>
+        <div class="chart-wrap sm"><canvas id="ch-gondola"></canvas></div>
+        ${infoTip('% promedio de espacio de góndola ocupado por Nova Consumo vs. competencia, relevado en cada visita, por cadena.')}</div>
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Disponibilidad de stock por cadena</div><div class="card-sub">% de visitas sin quiebre de stock</div></div></div>
+        <div class="chart-wrap sm"><canvas id="ch-disponibilidad"></canvas></div>${pctLegend()}
+        ${infoTip('(1 − visitas con quiebre de stock ÷ visitas totales) × 100, por cadena.')}</div>
+    </div>
+    <div class="grid grid-2e" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div class="card-title">Acciones de competencia detectadas</div></div>
+        <div class="chart-wrap sm"><canvas id="ch-competencia"></canvas></div>
+        ${infoTip('Tipo de acción de la competencia observada por el promotor en cada visita (ej: bajada de precio, nueva promoción, ganancia de espacio).')}</div>
+      <div class="card">
+        <div class="card-hdr"><div><div class="card-title">Presencia de competencia en el punto de venta</div><div class="card-sub">Encuesta independiente de precio/vencimientos — quién domina el espacio de exhibición</div></div></div>
+        <div style="height:14px;border-radius:7px;overflow:hidden;display:flex;gap:2px;margin-bottom:12px">
+          ${dominamosPct?`<div style="flex:${dominamosPct};background:var(--ok)"></div>`:''}
+          ${empatePct?`<div style="flex:${empatePct};background:var(--bl)"></div>`:''}
+          ${dominaCompPct?`<div style="flex:${dominaCompPct};background:var(--er)"></div>`:''}
+        </div>
+        <div style="display:flex;gap:16px;font-size:11px;flex-wrap:wrap;margin-bottom:${cadenasEnRiesgo.length?'12px':'0'}">
+          <span><span class="dot ok"></span> Dominamos nosotros (${dominamosPct}%)</span>
+          <span><span class="dot bl"></span> Empate (${empatePct}%)</span>
+          <span><span class="dot er"></span> Domina la competencia (${dominaCompPct}%)</span>
+        </div>
+        ${cadenasEnRiesgo.length?`<div class="banner" style="background:var(--er-d);border-color:var(--er-d);color:var(--er)"><i class="fas fa-triangle-exclamation"></i> Cadenas donde la competencia gana espacio: ${cadenasEnRiesgo.map(c=>`${c.cadena} (${c.dominaCompetencia}%)`).join(' · ')} — priorizar negociación de espacio/POP ahí.</div>`:''}
+        ${infoTip('En cada visita el promotor registra quién domina el espacio de exhibición: nosotros, empate o la competencia. "Cadenas en riesgo" = 3+ visitas y la competencia domina en ≥30% de ellas.')}
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr" style="align-items:center">
+        <div><div class="card-title">Estado de materiales</div><div class="card-sub">Espacios adicionales y materiales POP relevados en cada visita</div></div>
+        <select class="select-inline" id="pop-pdv-filtro" style="max-width:220px">
+          <option value="">Todos los PDVs</option>
+          ${pdvsConDatos.map(pdv=>`<option value="${pdv.id}" ${auditoriaPdvFiltro===pdv.id?'selected':''}>${pdv.name}</option>`).join('')}
+        </select>
+      </div>
+      ${infoTip('% de visitas con un espacio adicional ganado (fuera del planograma) y % con algún material POP instalado. La tabla de abajo se puede filtrar por PDV específico.')}
+      <div class="grid grid-2e" style="margin-bottom:14px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px"><span style="color:var(--tx2)">Espacios adicionales conseguidos</span><span style="font-weight:700">${espaciosPct}% · ${espaciosGanadosN} de ${n}</span></div>
+          <div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:${espaciosPct}%;background:var(--ok)"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px"><span style="color:var(--tx2)">Materiales POP instalados</span><span style="font-weight:700">${Math.round(pctPOP)}% · ${all.filter(r=>r.tienePOP).length} de ${n}</span></div>
+          <div style="height:8px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pctPOP}%;background:var(--vi)"></div></div>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Tipo de material</th><th>Instalaciones</th></tr></thead><tbody>
+      ${POP_TYPES.map(t=>`<tr><td>${t}</td><td style="font-weight:700">${popCount[t]||0}</td></tr>`).join('')}
+      </tbody></table></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr"><div class="card-title">Relevamiento por cadena</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Cadena</th><th>Visitas</th><th>Cobertura</th><th>Materiales</th><th>Promociones</th><th>Domina competencia</th></tr></thead><tbody>
+      ${porCadena.map(c=>`<tr><td style="font-weight:700">${c.cadena}</td><td>${c.n}</td><td><span class="badge ${c.cobertura>=85?'ok':c.cobertura>=60?'wa':'er'}">${c.cobertura}%</span></td><td><span class="badge ${c.materiales>=85?'ok':c.materiales>=60?'wa':'er'}">${c.materiales}%</span></td><td><span class="badge ${c.promociones>=85?'ok':c.promociones>=60?'wa':'er'}">${c.promociones}%</span></td><td><span class="badge ${c.dominaCompetencia>=30?'er':c.dominaCompetencia>=15?'wa':'ok'}">${c.dominaCompetencia}%</span></td></tr>`).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">Sin datos</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('Cobertura, materiales y promociones: % de visitas de esa cadena que cumplen cada criterio. Domina competencia: % de visitas donde el promotor registró que la competencia domina el espacio de exhibición.')}
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Promociones no cumplidas</div><div class="card-sub">${n-all.filter(r=>r.tienePromocion).length} de ${n}</div></div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>PDV</th><th>Cadena</th><th>Promotor</th><th>Motivo</th></tr></thead><tbody>
+      ${promoFallidas.map(r=>{ const pdv=pdvById(r.pdvId), prom=promoterById(r.promotorId); return `<tr><td>${dateDisplay(r.fecha)}</td><td style="font-weight:700">${pdv.name}</td><td>${pdv.chain}</td><td>${prom.name}</td><td style="color:var(--wa)">${r.motivoIncumplimientoPromo}</td></tr>`; }).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px"><i class="fas fa-check-circle" style="color:var(--ok);margin-right:6px"></i>Todas las promociones relevadas están cumplidas</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('Últimas 8 visitas donde la promoción vigente no se encontró ejecutada correctamente en el punto de venta, con el motivo registrado por el promotor.')}
+    </div>`;
+
+  document.getElementById('pop-pdv-filtro').onchange = e=>{ auditoriaPdvFiltro=e.target.value; renderAuditoria(); };
+
+  animateNum(document.getElementById('k-cobertura'), coberturaPct, '%');
+  animateNum(document.getElementById('k-gondola2'), Math.round(gondolaProm), '%');
+  animateNum(document.getElementById('k-disp'), Math.round(disponibilidad), '%');
+  animateNum(document.getElementById('k-cumplprecio'), Math.round(cumplePrecioPct), '%');
+  animateNum(document.getElementById('k-promo'), Math.round(promoPct), '%');
+  animateNum(document.getElementById('k-materiales'), materialesPct, '%');
+
+  mkChart('ch-gondola',{type:'bar',data:{labels:CHAINS,datasets:[
+      {label:'Nova Consumo',data:gondolaCadena,backgroundColor:'#3AAFA0',borderRadius:6,maxBarThickness:26},
+      {label:'Competencia',data:gondolaCadenaComp,backgroundColor:'#5a5252',borderRadius:6,maxBarThickness:26},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:10.5}}}},scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.06)'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  mkChart('ch-disponibilidad',{type:'bar',data:{labels:CHAINS,datasets:[{label:'% Disponibilidad',data:disponibilidadCadena,backgroundColor:disponibilidadCadena.map(pctColor),borderRadius:6,maxBarThickness:36}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.06)'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  mkChart('ch-competencia',{type:'doughnut',data:{labels:accionesLabels,datasets:[{data:accionesLabels.map(a=>accionesCount[a]),backgroundColor:['#5a5252','#7C93A8','#3AAFA0','#9C8FA6','#e8a045','#e84a55'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:10.5}}}}}});
+}
+
+// ============================================================
+// PÁGINA: RELEVAMIENTO FOTOGRÁFICO
+// ============================================================
+function renderEvidencias(){
+  const fotoSearchTenidoFoco = document.activeElement && document.activeElement.id==='foto-search';
+  const all = filterVisits();
+
+  let fotoRows = all;
+  if(searchTerm){
+    const s = searchTerm.toLowerCase();
+    fotoRows = fotoRows.filter(r=> pdvById(r.pdvId).name.toLowerCase().includes(s) || promoterById(r.promotorId).name.toLowerCase().includes(s));
+  }
+  const fotos = fotoRows.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,30);
+
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="card-hdr" style="align-items:center">
+        <div><div class="card-title">Relevamiento fotográfico</div><div class="card-sub">${fotoRows.length} evidencias en el período filtrado · mostrando ${fotos.length}</div></div>
+        <input type="text" id="foto-search" placeholder="Buscar por PDV o promotor..." style="max-width:260px" value="${searchTerm}">
+      </div>
+      <div class="evid-grid">
+        ${fotos.map(buildFotoCard).join('') || `<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:40px 0"><i class="fas fa-search" style="font-size:24px;display:block;margin-bottom:8px"></i>Sin resultados</div>`}
+      </div>
+      ${infoTip('Últimas 30 visitas del período filtrado con evidencia fotográfica (góndola, producto y precio) cargada por el promotor.')}
+    </div>`;
+
+  const fotoSearch = document.getElementById('foto-search');
+  fotoSearch.oninput = e=>{ searchTerm=e.target.value; renderEvidencias(); };
+  if(fotoSearchTenidoFoco){ fotoSearch.focus(); fotoSearch.selectionStart = fotoSearch.value.length; }
+}
+
+// ============================================================
+// PÁGINA: PRECIOS
+// ============================================================
+function renderPrecios(){
+  const preciosSearchTenidoFoco = document.activeElement && document.activeElement.id==='prec-corte-search';
+  const preciosLocalSearchTenidoFoco = document.activeElement && document.activeElement.id==='prec-local-search';
+  const all = filterVisits();
+  const conStock = all.filter(r=>!r.tieneQuiebre);
+
+  const preciosCat = CATEGORIES.map(cat=>{
+    const rs = conStock.filter(r=>r.categoria===cat);
+    return {cat, nuestro: rs.length?Math.round(rs.reduce((a,r)=>a+r.precioNuestro,0)/rs.length):0,
+      competidor: rs.length?Math.round(rs.reduce((a,r)=>a+r.precioCompetidor,0)/rs.length):0};
+  });
+
+  const precioNuestroMin = conStock.length? Math.min(...conStock.map(r=>r.precioNuestro)) : 0;
+  const precioNuestroMax = conStock.length? Math.max(...conStock.map(r=>r.precioNuestro)) : 0;
+  const precioCompMin = all.length? Math.min(...all.map(r=>r.precioCompetidor)) : 0;
+  const precioCompMax = all.length? Math.max(...all.map(r=>r.precioCompetidor)) : 0;
+
+  // Top 2 productos por rotación (unidades repuestas) en cada categoría — mismo ranking para las 4 tarjetas superiores
+  const topRotacionPorCategoria = CATEGORIES.map(cat=>{
+    const productos = (PRODUCTS[cat]||[]).map(prod=>({
+      prod, unid: all.filter(r=>r.producto===prod).reduce((s,r)=>s+r.unidadesRepuestas,0),
+    })).sort((a,b)=>b.unid-a.unid).slice(0,2);
+    return {cat, productos};
+  });
+  // Nombre del producto equivalente de un competidor: su propia marca, no la de Nova Consumo
+  const nombreProductoCompetidor = (prod, competidor) => prod.replace(/^Nova\s/, competidor+' ');
+  const detalleRotacionHtml = (getPrecio, getNombre) => `<div class="tbl-wrap"><table><thead><tr><th>Categoría</th><th>Producto</th><th>Rotación (unid.)</th><th>Precio mín.</th><th>Precio máx.</th></tr></thead><tbody>
+    ${topRotacionPorCategoria.flatMap(g=>g.productos.map((p,i)=>{
+      const precio = getPrecio(p.prod);
+      const nombre = getNombre ? getNombre(p.prod) : p.prod;
+      return `<tr>${i===0?`<td rowspan="${g.productos.length}" style="font-weight:700;vertical-align:top">${g.cat}</td>`:''}<td>${nombre}</td><td class="mono">${fmtInt(p.unid)}</td><td class="mono">${precio.n?fmtGs(precio.min):'—'}</td><td class="mono">${precio.n?fmtGs(precio.max):'—'}</td></tr>`;
+    })).join('')}
+  </tbody></table></div>`;
+  const detalleNova = detalleRotacionHtml(prod=>{
+    const rs = conStock.filter(r=>r.producto===prod);
+    return {min:rs.length?Math.min(...rs.map(r=>r.precioNuestro)):0, max:rs.length?Math.max(...rs.map(r=>r.precioNuestro)):0, n:rs.length};
+  });
+  const statsPorCompetidor = COMPETIDORES.map(nombre=>{
+    const rs = all.filter(r=>r.competidorNombre===nombre);
+    return {
+      nombre, n:rs.length,
+      min: rs.length?Math.min(...rs.map(r=>r.precioCompetidor)):0,
+      max: rs.length?Math.max(...rs.map(r=>r.precioCompetidor)):0,
+      detalle: detalleRotacionHtml(prod=>{
+        const rp = all.filter(r=>r.producto===prod && r.competidorNombre===nombre);
+        return {min:rp.length?Math.min(...rp.map(r=>r.precioCompetidor)):0, max:rp.length?Math.max(...rp.map(r=>r.precioCompetidor)):0, n:rp.length};
+      }, prod=>nombreProductoCompetidor(prod, nombre)),
+    };
+  });
+
+  // Precios por marca: lista de productos relevados de Nova Consumo y del competidor elegido, con min/max/relevamientos
+  const preciosPorMarcaNova = TODOS_PRODUCTOS.map(prod=>{
+    const rs = conStock.filter(r=>r.producto===prod);
+    return {prod, min:rs.length?Math.min(...rs.map(r=>r.precioNuestro)):0, max:rs.length?Math.max(...rs.map(r=>r.precioNuestro)):0, n:rs.length};
+  }).filter(p=>p.n>0).sort((a,b)=>b.n-a.n);
+  const preciosPorMarcaCompetidor = TODOS_PRODUCTOS.map(prod=>{
+    const rs = all.filter(r=>r.producto===prod && r.competidorNombre===preciosDetalleCompetidor);
+    return {prod:nombreProductoCompetidor(prod,preciosDetalleCompetidor), min:rs.length?Math.min(...rs.map(r=>r.precioCompetidor)):0, max:rs.length?Math.max(...rs.map(r=>r.precioCompetidor)):0, n:rs.length};
+  }).filter(p=>p.n>0).sort((a,b)=>b.n-a.n);
+
+  // Detalle por corte: una fila por producto x marca (propia y las 3 de competencia), con el nombre de producto genérico (sin prefijo de marca)
+  const productoGenerico = prod => prod.replace(/^Nova\s/, '');
+  let detalleCorteRows = TODOS_PRODUCTOS.flatMap(prod=>{
+    const filas = [];
+    const rsNova = conStock.filter(r=>r.producto===prod);
+    if(rsNova.length) filas.push({corte:productoGenerico(prod), marca:'Nova Consumo', tipo:'Propia', min:Math.min(...rsNova.map(r=>r.precioNuestro)), max:Math.max(...rsNova.map(r=>r.precioNuestro))});
+    COMPETIDORES.forEach(nombre=>{
+      const rs = all.filter(r=>r.producto===prod && r.competidorNombre===nombre);
+      if(rs.length) filas.push({corte:productoGenerico(prod), marca:nombre, tipo:'Competencia', min:Math.min(...rs.map(r=>r.precioCompetidor)), max:Math.max(...rs.map(r=>r.precioCompetidor))});
+    });
+    return filas;
+  }).sort((a,b)=>a.corte.localeCompare(b.corte) || (a.tipo==='Propia'?-1:b.tipo==='Propia'?1:0));
+  if(searchTerm){
+    const s = searchTerm.toLowerCase();
+    detalleCorteRows = detalleCorteRows.filter(r=>r.corte.toLowerCase().includes(s) || r.marca.toLowerCase().includes(s));
+  }
+
+  // Precios por local: un local (PDV) por fila, con su clúster de rotación (mismo criterio que Cobertura) y su rango de precio propio vs. competencia
+  const pdvsFiltradosPrecios = PDVS.filter(pdv=>(!F.cadena||pdv.chain===F.cadena)&&(!F.ciudad||pdv.city===F.ciudad));
+  const clasifRotacionPrecios = clasificarLocalesPorRotacion(pdvsFiltradosPrecios, all);
+  let preciosPorLocal = pdvsFiltradosPrecios.map(pdv=>{
+    const rowsPdv = all.filter(r=>r.pdvId===pdv.id);
+    const rowsPdvConStock = rowsPdv.filter(r=>!r.tieneQuiebre);
+    const productosPropios = new Set(rowsPdvConStock.map(r=>r.producto)).size;
+    const productosComp = new Set(rowsPdv.map(r=>r.producto+'|'+r.competidorNombre)).size;
+    const variacion = rowsPdvConStock.length? rowsPdvConStock.reduce((s,r)=>s+((r.precioNuestro-r.precioCompetidor)/r.precioCompetidor*100),0)/rowsPdvConStock.length : null;
+    return {
+      pdv, n:rowsPdv.length, productosPropios, productosComp,
+      minNova: rowsPdvConStock.length?Math.min(...rowsPdvConStock.map(r=>r.precioNuestro)):0,
+      maxNova: rowsPdvConStock.length?Math.max(...rowsPdvConStock.map(r=>r.precioNuestro)):0,
+      minComp: rowsPdv.length?Math.min(...rowsPdv.map(r=>r.precioCompetidor)):0,
+      maxComp: rowsPdv.length?Math.max(...rowsPdv.map(r=>r.precioCompetidor)):0,
+      variacion, cluster: clasifRotacionPrecios.clusterDe(pdv.id),
+    };
+  }).filter(r=>r.n>0).sort((a,b)=>a.pdv.name.localeCompare(b.pdv.name));
+  if(preciosLocalClusterFiltro) preciosPorLocal = preciosPorLocal.filter(r=>preciosLocalClusterFiltro==='SIN'? !r.cluster : r.cluster===preciosLocalClusterFiltro);
+  if(preciosLocalBusqueda){
+    const s = preciosLocalBusqueda.toLowerCase();
+    preciosPorLocal = preciosPorLocal.filter(r=>r.pdv.name.toLowerCase().includes(s) || r.pdv.chain.toLowerCase().includes(s));
+  }
+
+  // Comparativo por producto: Nova Consumo vs. cada competidor, para el producto elegido en el select
+  const VARIANTES_COMPETIDOR = ['amber','blue','violet'];
+  const COLORES_COMPETIDOR = ['#e8a045','#7C93A8','#9C8FA6'];
+  const comparativoStats = preciosProductoComparado ? (() => {
+    const entidades = [{nombre:'Nova Consumo', color:'#3AAFA0'}, ...COMPETIDORES.map((n,i)=>({nombre:n, color:COLORES_COMPETIDOR[i]}))];
+    return entidades.map((e,i)=>{
+      const rs = i===0
+        ? conStock.filter(r=>r.producto===preciosProductoComparado)
+        : all.filter(r=>r.producto===preciosProductoComparado && r.competidorNombre===e.nombre);
+      const key = i===0 ? 'precioNuestro' : 'precioCompetidor';
+      return {...e, n:rs.length, min: rs.length?Math.min(...rs.map(r=>r[key])):null, max: rs.length?Math.max(...rs.map(r=>r[key])):null};
+    });
+  })() : [];
+
+  document.getElementById('content').innerHTML = `
+    <div class="grid grid-kpi" style="margin-bottom:18px">
+      ${kpiX({id:'precio-nova', variant:'teal', icon:'fa-tags', label:'Precio Nova Consumo',
+        value:`${fmtGs(precioNuestroMin)} – ${fmtGs(precioNuestroMax)}`, foot:'Rango mín-máx observado en el período',
+        tooltip:'Precio mínimo y máximo de Nova Consumo relevado en todas las visitas del período filtrado.',
+        expandable:true, hint:'Ver top productos por rotación', detail:detalleNova})}
+      ${statsPorCompetidor.map((c,i)=>kpiX({id:'precio-comp'+i, variant:VARIANTES_COMPETIDOR[i], icon:'fa-tag', label:c.nombre,
+        value: c.n? `${fmtGs(c.min)} – ${fmtGs(c.max)}` : 'Sin datos',
+        foot: c.n? `${c.n} relevamientos en el período` : 'Sin relevamientos en el período',
+        tooltip:`Precio mínimo y máximo de ${c.nombre} (competidor) relevado en el período filtrado.`,
+        expandable:true, hint:'Ver top productos por rotación', detail:c.detalle})).join('')}
+    </div>
+    <div class="grid grid-2e" style="margin-bottom:16px;align-items:stretch">
+      <div class="card">
+        <div class="card-hdr" style="align-items:center">
+          <div><div class="card-title">Comparativo por producto</div><div class="card-sub">Rango de precios de Nova Consumo vs. cada competidor, para el producto elegido</div></div>
+          <select class="select-inline" id="prec-compara-producto">
+            <option value="">Elegí un producto...</option>
+            ${TODOS_PRODUCTOS.map(p=>`<option value="${p}" ${p===preciosProductoComparado?'selected':''}>${p}</option>`).join('')}
+          </select>
+        </div>
+        ${preciosProductoComparado ? `<div style="font-size:11px;color:var(--tx3);margin-bottom:10px">Producto equivalente por marca: ${comparativoStats.map(e=>`<b style="color:var(--tx2)">${e.nombre}</b>: ${e.nombre==='Nova Consumo'?preciosProductoComparado:nombreProductoCompetidor(preciosProductoComparado, e.nombre)}`).join(' · ')}</div>
+          <div class="chart-wrap" style="height:220px"><canvas id="ch-compara-producto"></canvas></div>
+          ${comparativoStats.some(e=>!e.n)?`<div style="font-size:11px;color:var(--tx3);margin-top:8px">Sin relevamientos de este producto para: ${comparativoStats.filter(e=>!e.n).map(e=>e.nombre).join(', ')}</div>`:''}`
+          : `<div style="text-align:center;color:var(--tx3);padding:40px 0"><i class="fas fa-chart-simple" style="font-size:22px;display:block;margin-bottom:8px"></i>Seleccioná un producto de Nova Consumo para comparar su rango de precios contra la competencia</div>`}
+        ${infoTip('Rango mín-máx de precio relevado del producto elegido, comparando Nova Consumo contra cada competidor en el período filtrado.')}
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div><div class="card-title">Precio Nova Consumo vs. competencia</div><div class="card-sub">Promedio por categoría (Gs.) — excluye visitas con quiebre</div></div></div>
+        <div class="chart-wrap"><canvas id="ch-precios"></canvas></div>
+        ${infoTip('Precio promedio por categoría, solo visitas sin quiebre de stock (con quiebre no hay precio de góndola confiable para relevar).')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Precios por marca</div><div class="card-sub">Elegí una marca (Nova Consumo o competencia) para ver el precio de cada producto que se relevó</div></div></div>
+      ${infoTip('Precio mínimo y máximo relevado por producto, para la marca seleccionada, en el período filtrado.')}
+      <div class="grid grid-2e" style="margin-top:6px;gap:18px">
+        <div>
+          <div class="pmarca-lbl" style="color:var(--ok)">Nova Consumo</div>
+          <div class="pmarca-box own"><span class="badge ok">Nova Consumo</span></div>
+          <div class="pmarca-tbl tbl-wrap"><table><thead><tr><th>Producto</th><th>Mín.</th><th>Máx.</th><th>Relevamientos</th></tr></thead><tbody>
+            ${preciosPorMarcaNova.map(p=>`<tr><td style="font-weight:700">${p.prod}</td><td class="mono">${fmtGs(p.min)}</td><td class="mono">${fmtGs(p.max)}</td><td class="mono">${fmtInt(p.n)}</td></tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:20px">Sin datos</td></tr>`}
+          </tbody></table></div>
+        </div>
+        <div>
+          <div class="pmarca-lbl" style="color:var(--er)">Competencia</div>
+          <div class="pmarca-pills">${COMPETIDORES.map(c=>`<span class="fbar-chip pmarca-pill ${c===preciosDetalleCompetidor?'active':''}" data-comp="${c}">${c}</span>`).join('')}</div>
+          <div class="pmarca-box comp"><span class="badge er">${preciosDetalleCompetidor}</span></div>
+          <div class="pmarca-tbl tbl-wrap"><table><thead><tr><th>Producto</th><th>Mín.</th><th>Máx.</th><th>Relevamientos</th></tr></thead><tbody>
+            ${preciosPorMarcaCompetidor.map(p=>`<tr><td style="font-weight:700">${p.prod}</td><td class="mono">${fmtGs(p.min)}</td><td class="mono">${fmtGs(p.max)}</td><td class="mono">${fmtInt(p.n)}</td></tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:20px">Sin datos</td></tr>`}
+          </tbody></table></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr"><div><div class="card-title">Detalle por corte — mínimo y máximo</div><div class="card-sub">Todos los productos y marcas relevados en el rango elegido</div></div></div>
+      <input type="text" id="prec-corte-search" placeholder="Buscar producto o marca..." style="max-width:320px;margin-bottom:14px" value="${searchTerm}">
+      <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr><th>Producto</th><th>Marca</th><th>Tipo</th><th>Mínimo</th><th>Máximo</th></tr></thead><tbody>
+        ${detalleCorteRows.map(r=>`<tr><td style="font-weight:700">${r.corte}</td><td>${r.marca}</td><td><span class="badge ${r.tipo==='Propia'?'ok':'er'}">${r.tipo}</span></td><td class="mono">${fmtGs(r.min)}</td><td class="mono">${fmtGs(r.max)}</td></tr>`).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px">Sin resultados</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('Precio mínimo y máximo relevado de cada producto, para cada marca (propia y competencia), en el rango elegido.')}
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Precios por local</div><div class="card-sub">Todos los locales con al menos un precio relevado en el rango elegido, propio o de competencia</div></div></div>
+      ${infoTip('Variación = (precio Nova Consumo − precio competencia) ÷ precio competencia × 100, promedio del local. Verde = igual o más barato que la competencia, rojo = más caro. Clúster: mismo criterio de rotación que Cobertura.')}
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <input type="text" id="prec-local-search" placeholder="Buscar local o cadena..." style="max-width:320px;flex:1" value="${preciosLocalBusqueda}">
+        <select class="select-inline" id="prec-local-cluster">
+          <option value="">Todos los clústeres</option>
+          ${CLUSTER_DEF.map(c=>`<option value="${c.id}" ${preciosLocalClusterFiltro===c.id?'selected':''}>${c.label}</option>`).join('')}
+          <option value="SIN" ${preciosLocalClusterFiltro==='SIN'?'selected':''}>Sin clasificar</option>
+        </select>
+      </div>
+      <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table><thead><tr>
+        <th>Local</th><th>Cadena</th><th>Clúster</th><th>Productos propios</th><th>Productos comp.</th><th>Mín. Nova Consumo</th><th>Máx. Nova Consumo</th><th>Mín. Comp.</th><th>Máx. Comp.</th><th>Variación</th>
+      </tr></thead><tbody>
+        ${preciosPorLocal.map(r=>{
+          const def = CLUSTER_DEF.find(c=>c.id===r.cluster);
+          const clusterTxt = def? def.label : 'Sin clasificar';
+          const v = r.variacion;
+          return `<tr><td style="font-weight:700">${r.pdv.name}</td><td>${r.pdv.chain}</td><td style="color:${def?`var(--${def.color})`:'var(--tx3)'}">${clusterTxt}</td><td class="mono">${fmtInt(r.productosPropios)}</td><td class="mono">${fmtInt(r.productosComp)}</td><td class="mono">${fmtGs(r.minNova)}</td><td class="mono">${fmtGs(r.maxNova)}</td><td class="mono">${fmtGs(r.minComp)}</td><td class="mono">${fmtGs(r.maxComp)}</td><td>${v==null?'—':`<span class="badge ${v<=0?'ok':'er'}">${v>0?'+':''}${v.toFixed(1)}%</span>`}</td></tr>`;
+        }).join('') || `<tr><td colspan="10" style="text-align:center;color:var(--tx3);padding:20px">Sin resultados</td></tr>`}
+      </tbody></table></div>
+    </div>`;
+
+  mkChart('ch-precios',{type:'bar',data:{labels:preciosCat.map(p=>p.cat),datasets:[
+      {label:'Nova Consumo',data:preciosCat.map(p=>p.nuestro),backgroundColor:'#3AAFA0',borderRadius:5,maxBarThickness:36},
+      {label:'Competencia',data:preciosCat.map(p=>p.competidor),backgroundColor:'#5a5252',borderRadius:5,maxBarThickness:36},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:10.5}}}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'}},x:{grid:{display:false}}}}});
+
+  document.querySelectorAll('.pmarca-pill').forEach(el=>{
+    el.onclick = ()=>{ preciosDetalleCompetidor=el.dataset.comp; renderPrecios(); };
+  });
+
+  const corteSearch = document.getElementById('prec-corte-search');
+  corteSearch.oninput = e=>{ searchTerm=e.target.value; renderPrecios(); };
+  if(preciosSearchTenidoFoco){ corteSearch.focus(); corteSearch.selectionStart = corteSearch.value.length; }
+
+  const localSearch = document.getElementById('prec-local-search');
+  localSearch.oninput = e=>{ preciosLocalBusqueda=e.target.value; renderPrecios(); };
+  if(preciosLocalSearchTenidoFoco){ localSearch.focus(); localSearch.selectionStart = localSearch.value.length; }
+  document.getElementById('prec-local-cluster').onchange = e=>{ preciosLocalClusterFiltro=e.target.value; renderPrecios(); };
+
+  wireKpiX('precio-nova');
+  statsPorCompetidor.forEach((c,i)=>wireKpiX('precio-comp'+i));
+
+  document.getElementById('prec-compara-producto').onchange = e=>{ preciosProductoComparado=e.target.value; renderPrecios(); };
+  if(preciosProductoComparado){
+    const conDatos = comparativoStats.filter(e=>e.n);
+    mkChart('ch-compara-producto',{type:'bar',data:{labels:conDatos.map(e=>e.nombre),datasets:[{data:conDatos.map(e=>[e.min,e.max]),backgroundColor:conDatos.map(e=>e.color),borderRadius:6,maxBarThickness:38}]},
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${fmtGs(ctx.raw[0])} – ${fmtGs(ctx.raw[1])}`}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'},ticks:{callback:v=>fmtInt(v)}},y:{grid:{display:false}}}}});
+  }
+}
+
+// ============================================================
+// PÁGINA: OFERTAS Y PROMOCIONES
+// ============================================================
+function buildOfertaFotoCard(o){
+  const r = o.r;
+  const pdv = pdvById(r.pdvId), prom = promoterById(r.promotorId);
+  const badgeOrigen = o.origen==='Propia' ? `<span class="ofr-badge ofr-badge-propia">Propia</span>` : `<span class="ofr-badge ofr-badge-local">Local</span>`;
+  return `<div class="ofr-photo-card" onclick='openPhoto("${r.id}","estanteria")'>
+    <div class="evid-photos">
+      <div class="ph-wrap"><img src="${r.fotoEstanteria}" loading="lazy" alt="Góndola"><span class="ph-label">Góndola</span></div>
+      <div class="ph-wrap"><img src="${r.fotoProducto}" loading="lazy" alt="Producto"><span class="ph-label">Producto</span></div>
+      <div class="ph-wrap"><img src="${r.fotoPrecio}" loading="lazy" alt="Precio"><span class="ph-label">Precio</span></div>
+    </div>
+    <div class="ofr-photo-body">
+      <div class="ofr-photo-pdv">${pdv.name}</div>
+      <div class="ofr-photo-meta">${prom.name} · ${dateDisplay(r.fecha)} · ${r.hora}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">${badgeOrigen}<span class="ofr-badge" style="background:var(--bd);color:var(--tx)">${o.tipo}</span></div>
+    </div>
+  </div>`;
+}
+function renderOfertas(){
+  const rows = filterVisits();
+  const promoRows = rows.filter(r=>r.tienePromocion);
+  const fechaReferencia = F.fechaHasta || FECHA_MAX;
+  const [refY,refM,refD] = fechaReferencia.split('-').map(Number);
+  const fechaRefDate = new Date(refY,refM-1,refD);
+
+  // Se toma un subconjunto de las visitas con promoción, ponderado por día de la semana (pico viernes/sábado)
+  const ofertas = promoRows.filter(r=>{
+    const dow = diaSemanaDe(r.fecha);
+    const h = hashStr(r.id+'ofertasel')%100;
+    return h < PESO_DIA_OFERTA[dow]*45;
+  }).map(r=>{
+    const det = ofertaDetalle(r);
+    const [y,m,d] = r.fecha.split('-').map(Number);
+    const fechaFinDate = addDays(new Date(y,m-1,d), det.vigenciaDias);
+    const fechaFin = isoDate(fechaFinDate);
+    const diasParaVencer = Math.round((fechaFinDate-fechaRefDate)/86400000);
+    const estado = fechaFin<fechaReferencia ? 'Vencida' : (diasParaVencer<=3 ? 'Próxima a vencer' : 'Activa');
+    return {r, ...det, fechaFin, estado};
+  });
+
+  // Tabla resumen: una fila por combinación PDV × producto (la más reciente)
+  const porCombo = {};
+  ofertas.forEach(o=>{
+    const k = o.r.pdvId+'|'+o.r.producto;
+    if(!porCombo[k] || o.r.fecha>porCombo[k].r.fecha) porCombo[k]=o;
+  });
+  const ofertasTabla = Object.values(porCombo).sort((a,b)=>b.r.fecha.localeCompare(a.r.fecha));
+
+  const DIAS_SEMANA = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const countPorDia = Array(7).fill(0);
+  ofertas.forEach(o=>{ const dow=diaSemanaDe(o.r.fecha); countPorDia[dow===0?6:dow-1]++; });
+
+  const origenCount = {Propia:0, Local:0};
+  ofertas.forEach(o=>origenCount[o.origen]++);
+  const totalOfertas = ofertas.length;
+  const pctPropia = totalOfertas? Math.round(origenCount.Propia/totalOfertas*100):0;
+  const pctLocal = totalOfertas? 100-pctPropia:0;
+
+  const badgeOrigen = origen => origen==='Propia' ? `<span class="ofr-badge ofr-badge-propia">Propia</span>` : `<span class="ofr-badge ofr-badge-local">Local</span>`;
+  const badgeEstado = estado => estado==='Activa' ? `<span class="ofr-badge ofr-badge-activa">Activa</span>` : estado==='Próxima a vencer' ? `<span class="ofr-badge ofr-badge-provencer">Próxima a vencer</span>` : `<span class="ofr-badge ofr-badge-vencida">Vencida</span>`;
+
+  document.getElementById('content').innerHTML = `
+    <div class="ofr-card" style="margin-bottom:16px">
+      <div class="ofr-title">Resumen de ofertas</div>
+      <div class="ofr-sub">${ofertasTabla.length} ofertas detectadas en el período filtrado (una por combinación PDV × producto, la más reciente)</div>
+      <div class="tbl-wrap" style="max-height:420px;overflow-y:auto"><table class="cljcard-table"><thead><tr>
+        <th>Punto de venta</th><th>Producto</th><th>Tipo de oferta</th><th>Origen</th><th>Vigencia</th><th>Estado</th>
+      </tr></thead><tbody>
+        ${ofertasTabla.map(o=>{ const pdv=pdvById(o.r.pdvId); return `<tr><td style="font-weight:700">${pdv.name}</td><td>${o.r.producto}</td><td>${o.tipo} (${o.detalle})</td><td>${badgeOrigen(o.origen)}</td><td>${o.vigenciaDias} días</td><td>${badgeEstado(o.estado)}</td></tr>`; }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">Sin ofertas en el período seleccionado</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('Una fila por combinación PDV × producto (la más reciente). Estado: Activa (vigente), Próxima a vencer (≤3 días) o Vencida.')}
+    </div>
+    <div class="grid grid-2e" style="margin-bottom:16px;gap:16px">
+      <div class="ofr-card">
+        <div class="ofr-title">Frecuencia de ofertas por día</div>
+        <div class="ofr-sub">Volumen de activaciones de lunes a domingo — viernes y sábado concentran la mayor actividad</div>
+        <div class="chart-wrap sm"><canvas id="ch-ofr-dia"></canvas></div>
+        ${infoTip('Cantidad de ofertas detectadas por día de la semana en el período filtrado.')}
+      </div>
+      <div class="ofr-card">
+        <div class="ofr-title">Origen de las ofertas</div>
+        <div class="ofr-sub">${pctPropia}% propias · ${pctLocal}% de la cadena/local</div>
+        <div class="chart-wrap sm"><canvas id="ch-ofr-origen"></canvas></div>
+        ${infoTip('"Propia" = oferta definida por Nova Consumo. "Local/Cadena" = promoción decidida por la cadena o el local, no por nosotros.')}
+      </div>
+    </div>
+    <div class="ofr-card">
+      <div class="ofr-title">Reporte fotográfico de campo</div>
+      <div class="ofr-sub">${Math.min(24,ofertasTabla.length)} de ${ofertasTabla.length} evidencias de exhibición y activación de ofertas</div>
+      <div class="ofr-gallery">
+        ${ofertasTabla.slice(0,24).map(buildOfertaFotoCard).join('') || `<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:30px 0">Sin evidencias en el período seleccionado</div>`}
+      </div>
+      ${infoTip('Evidencia fotográfica de la exhibición/activación de la oferta, cargada por el promotor en cada visita.')}
+    </div>`;
+
+  mkChart('ch-ofr-dia',{type:'bar',data:{labels:DIAS_SEMANA,datasets:[{data:countPorDia,backgroundColor:DIAS_SEMANA.map((d,i)=>(i===4||i===5)?'#BA7819':'#D8CBB5'),borderRadius:6,maxBarThickness:34}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,.06)'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  mkChart('ch-ofr-origen',{type:'doughnut',data:{labels:['Propia','Local / Cadena'],datasets:[{data:[origenCount.Propia,origenCount.Local],backgroundColor:['#3DA35D','#5B7C99'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:11}}}}}});
+}
+
+// ============================================================
+// PÁGINA: ALERTAS Y VENCIMIENTOS
+// ============================================================
+function valorAlerta(productosArr, cantidad){
+  if(!productosArr || !productosArr.length) return 0;
+  const precioProm = productosArr.reduce((s,p)=>s+PRECIO_SUGERIDO[p],0)/productosArr.length;
+  return precioProm * cantidad;
+}
+function renderAlertas(){
+  const rows = filterVisits();
+  const vencidos = rows.filter(r=>r.estadoVenc==='vencido');
+  const urgente = rows.filter(r=>r.estadoVenc==='urgente');
+  const proximo = rows.filter(r=>r.estadoVenc==='proximo');
+  const holgado = rows.filter(r=>r.estadoVenc==='holgado');
+  const averiados = rows.filter(r=>r.tieneAveriados);
+  const alertRows = rows.filter(r=>r.tieneVencidos||r.tieneAveriados).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+
+  const valorVencido = vencidos.reduce((s,r)=>s+valorAlerta(r.productos,r.cantidadVencidos),0);
+
+  const pdvsConRelevamiento = new Set(rows.map(r=>r.pdvId));
+  const pdvsConAlerta = new Set([...vencidos,...averiados].map(r=>r.pdvId));
+  const pctCobertura = pdvsConRelevamiento.size? Math.round(100*pdvsConAlerta.size/pdvsConRelevamiento.size):0;
+
+  const alertasEstaSemana = rowsEnRangoFechas(isoDate(addDays(TODAY,-6)), isoDate(TODAY)).filter(r=>r.estadoVenc==='vencido'||r.tieneAveriados).length;
+  const alertasSemanaPrevia = rowsEnRangoFechas(isoDate(addDays(TODAY,-13)), isoDate(addDays(TODAY,-7))).filter(r=>r.estadoVenc==='vencido'||r.tieneAveriados).length;
+  const tendenciaPct = alertasSemanaPrevia>0 ? Math.round(100*(alertasEstaSemana-alertasSemanaPrevia)/alertasSemanaPrevia) : (alertasEstaSemana>0?100:0);
+
+  const prodCounts = {};
+  rows.filter(r=>r.tieneVencidos).forEach(r=>r.productos.forEach(p=>prodCounts[p]=(prodCounts[p]||0)+1));
+  averiados.forEach(r=>r.productosAveriados.forEach(p=>prodCounts[p]=(prodCounts[p]||0)+1));
+  const prodTop = Object.entries(prodCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+  const proximosTotal = urgente.length+proximo.length+holgado.length;
+
+  const fechaVencimiento = r => { const [y,m,d]=r.fecha.split('-').map(Number); return dateDisplay(isoDate(addDays(new Date(y,m-1,d), r.diasVenc))); };
+
+  const tabRows = alertasTab==='todos' ? alertRows
+    : alertasTab==='vencidos' ? rows.filter(r=>r.estadoVenc==='vencido').sort((a,b)=>b.fecha.localeCompare(a.fecha))
+    : alertasTab==='proximos' ? rows.filter(r=>['urgente','proximo','holgado'].includes(r.estadoVenc)).sort((a,b)=>b.fecha.localeCompare(a.fecha))
+    : averiados.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+
+  document.getElementById('content').innerHTML = `
+    <div class="section-divider"><i class="fas fa-calendar-times"></i> Vencimientos y averías</div>
+    ${vencidos.length?`<div class="banner" style="background:var(--er-d);border-color:var(--er-d);color:var(--er)"><i class="fas fa-calendar-times"></i> <b>${vencidos.length} productos ya vencidos</b> — ${fmtGs(valorVencido)} en riesgo, hay que retirarlos de góndola.</div>`:''}
+    <div class="semaforo" style="grid-template-columns:repeat(4,1fr)">
+      <div class="sf-card rojo"><div class="sf-val" style="color:var(--er)">${vencidos.length}</div><div class="sf-lbl">Ya vencido</div></div>
+      <div class="sf-card amarillo"><div class="sf-val" style="color:var(--wa)">${proximosTotal}</div><div class="sf-lbl">Próximos a vencer (&lt;90 días)</div></div>
+      <div class="sf-card" style="background:var(--bl-d)"><div class="sf-val" style="color:var(--bl)">${pctCobertura}%</div><div class="sf-lbl">PDVs con alerta</div></div>
+      <div class="sf-card" style="background:${tendenciaPct>0?'var(--er-d)':'var(--ok-d)'}"><div class="sf-val" style="color:${tendenciaPct>0?'var(--er)':'var(--ok)'}">${tendenciaPct>0?'+':''}${tendenciaPct}%</div><div class="sf-lbl">Tendencia semanal</div></div>
+    </div>
+    <div class="grid grid-2" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div class="card-title">Productos más alertados</div><div class="card-sub">Incluye vencimientos y averías</div></div>
+        <div class="chart-wrap sm"><canvas id="ch-productos"></canvas></div>
+        ${infoTip('Top 6 productos con más alertas de vencimiento o avería registradas en el período.')}</div>
+      <div class="card"><div class="card-hdr"><div class="card-title">Motivos de alerta</div></div>
+        <div class="chart-wrap sm"><canvas id="ch-motivos"></canvas></div>
+        ${infoTip('Composición de las alertas por estado: vencido, próximo a vencer (en 3 franjas de días) o averiado.')}</div>
+    </div>
+    <div class="card">
+      <div class="card-hdr" style="align-items:center">
+        <div><div class="card-title">Detalle de alertas</div><div class="card-sub">${tabRows.length} registros</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="fbar-chip" id="tab-todos" style="cursor:pointer">Todos (${alertRows.length})</span>
+          <span class="fbar-chip" id="tab-vencidos" style="cursor:pointer">Vencidos (${vencidos.length})</span>
+          <span class="fbar-chip" id="tab-proximos" style="cursor:pointer">Próximos (${urgente.length+proximo.length+holgado.length})</span>
+          <span class="fbar-chip" id="tab-averiados" style="cursor:pointer">Averiados (${averiados.length})</span>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>PDV</th><th>Ciudad</th><th>Promotor</th><th>Tipo</th><th>Producto</th><th>Cantidad</th><th>Fecha de vencimiento</th><th>Motivo</th><th>Estado</th></tr></thead><tbody>
+        ${tabRows.slice(0,25).map(r=>{ const pdv=pdvById(r.pdvId), prom=promoterById(r.promotorId);
+          if(r.tieneVencidos && (alertasTab!=='averiados')) return `<tr><td>${dateDisplay(r.fecha)}</td><td style="font-weight:700">${pdv.name}</td><td>${pdv.city}</td><td>${prom.name}</td><td><span class="badge er">Vencimiento</span></td><td>${r.productos.join(', ')}</td><td style="font-weight:700">${r.cantidadVencidos} u.</td><td class="mono">${fechaVencimiento(r)}</td><td style="font-size:11px;color:var(--tx2)">${r.motivoVencido}</td><td>${badgeVenc(r.estadoVenc)}</td></tr>`;
+          return `<tr><td>${dateDisplay(r.fecha)}</td><td style="font-weight:700">${pdv.name}</td><td>${pdv.city}</td><td>${prom.name}</td><td><span class="badge br">Avería</span></td><td>${r.productosAveriados.join(', ')}</td><td style="font-weight:700">${r.cantidadAveriados} u.</td><td style="color:var(--tx3)">—</td><td style="font-size:11px;color:var(--tx2)">${r.motivoAveriado}</td><td>${badgeAveria()}</td></tr>`;
+        }).join('') || `<tr><td colspan="10" style="text-align:center;color:var(--tx3);padding:30px">Sin alertas en el período seleccionado</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('Listado de visitas con productos vencidos o averiados registrados por el promotor, con motivo declarado. Usá las pestañas para filtrar por tipo.')}
+    </div>`;
+
+  const marcarTab = (id, activo) => { const el=document.getElementById(id); if(activo){ el.style.background='var(--brand-d)'; el.style.color='var(--brand2)'; el.style.borderColor='var(--brand-d)'; } else { el.style.background=''; el.style.color=''; el.style.borderColor=''; } };
+  [['todos','tab-todos'],['vencidos','tab-vencidos'],['proximos','tab-proximos'],['averiados','tab-averiados']].forEach(([tab,id])=>{
+    marcarTab(id, alertasTab===tab);
+    document.getElementById(id).onclick = ()=>{ alertasTab=tab; renderAlertas(); };
+  });
+
+  mkChart('ch-productos',{type:'bar',data:{labels:prodTop.map(p=>p[0]),datasets:[{label:'Alertas',data:prodTop.map(p=>p[1]),backgroundColor:'#e84a55',borderRadius:6,maxBarThickness:26}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'}},y:{grid:{display:false},ticks:{font:{size:10.5}}}}}});
+
+  mkChart('ch-motivos',{type:'doughnut',data:{labels:['Vencido','Vence ≤7d','Vence 8-30d','Vence +30d','Averiados'],datasets:[{data:[vencidos.length,urgente.length,proximo.length,holgado.length,averiados.length],backgroundColor:['#e84a55','#e8a045','#f0c674','#3AAFA0','#c98a4b'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:11}}}}}});
+}
+
+// ============================================================
+// PÁGINA: QUIEBRES DE STOCK
+// ============================================================
+function renderQuiebres(){
+  const rows = filterVisits();
+  const quiebresRows = rows.filter(r=>r.tieneQuiebre).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const quiebresGondola = quiebresRows.filter(r=>r.tipoQuiebre==='Góndola');
+  const quiebresTotal = quiebresRows.filter(r=>r.tipoQuiebre==='Total');
+  const pdvsConQuiebre = new Set(quiebresRows.map(r=>r.pdvId)).size;
+
+  const porPdvMap = {};
+  quiebresRows.forEach(r=>{ const pdv=pdvById(r.pdvId); porPdvMap[pdv.name]=(porPdvMap[pdv.name]||0)+1; });
+  const porPdvTop = Object.entries(porPdvMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+  const porProductoMap = {};
+  quiebresRows.forEach(r=>{ porProductoMap[r.producto]=(porProductoMap[r.producto]||0)+1; });
+  const porProductoTop = Object.entries(porProductoMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+  const porCategoriaMap = {};
+  quiebresRows.forEach(r=>{ porCategoriaMap[r.categoria]=(porCategoriaMap[r.categoria]||0)+1; });
+  const porCategoria = CATEGORIES.map(c=>({cat:c, n:porCategoriaMap[c]||0}));
+
+  const porCadenaMap = {};
+  quiebresRows.forEach(r=>{ const pdv=pdvById(r.pdvId); porCadenaMap[pdv.chain]=(porCadenaMap[pdv.chain]||0)+1; });
+  const porCadena = CHAINS.map(c=>({cadena:c, n:porCadenaMap[c]||0}));
+
+  document.getElementById('content').innerHTML = `
+    <div class="grid grid-2e" style="margin-bottom:18px">
+      <div class="kpi" style="background:linear-gradient(135deg, var(--wa-d), var(--bg2) 70%)"><div class="kpi-lbl">Quiebre de góndola</div><div class="kpi-val" style="color:var(--wa)">${quiebresGondola.length}</div><div class="kpi-sub">hay stock en depósito</div></div>
+      <div class="kpi" style="background:linear-gradient(135deg, var(--er-d), var(--bg2) 70%)"><div class="kpi-lbl">Quiebre total</div><div class="kpi-val" style="color:var(--er)">${quiebresTotal.length}</div><div class="kpi-sub">sin stock en depósito</div></div>
+    </div>
+    <div class="grid grid-2" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Quiebres por PDV</div><div class="card-sub">Top 10 locales con más quiebres detectados</div></div></div>
+        <div class="chart-wrap"><canvas id="ch-quiebrepdv"></canvas></div>
+        ${infoTip('Cantidad de visitas con quiebre de stock (góndola o total) detectadas por local, top 10.')}</div>
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Quiebres por producto</div><div class="card-sub">Top 10 productos más afectados</div></div></div>
+        <div class="chart-wrap"><canvas id="ch-quiebreproducto"></canvas></div>
+        ${infoTip('Cantidad de visitas con quiebre de stock detectadas por producto, top 10.')}</div>
+    </div>
+    <div class="grid grid-2" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div class="card-title">Quiebres por categoría</div></div>
+        <div class="chart-wrap sm"><canvas id="ch-quiebrecategoria"></canvas></div>
+        ${infoTip('Distribución de los quiebres de stock detectados en el período, por categoría de producto.')}</div>
+      <div class="card"><div class="card-hdr"><div class="card-title">Quiebres por cadena</div></div>
+        <div class="chart-wrap sm"><canvas id="ch-quiebrecadena"></canvas></div>
+        ${infoTip('Cantidad de visitas con quiebre de stock detectadas por cadena.')}</div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Detalle de quiebres</div><div class="card-sub">${quiebresRows.length} quiebres detectados en ${pdvsConQuiebre} PDVs</div></div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>PDV</th><th>Cadena</th><th>Producto</th><th>Observación</th><th>Cantidad en góndola</th><th>Cantidad en depósito</th></tr></thead><tbody>
+        ${quiebresRows.slice(0,15).map(r=>{ const pdv=pdvById(r.pdvId);
+          return `<tr><td>${dateDisplay(r.fecha)}</td><td style="font-weight:700">${pdv.name}</td><td>${pdv.chain}</td><td>${r.producto}</td><td><span class="badge ${r.tipoQuiebre==='Total'?'er':'wa'}">${r.tipoQuiebre}</span></td><td style="text-align:center;font-weight:700;color:var(--er)">${r.cantidadEnGondola}</td><td style="text-align:center;font-weight:700;color:${r.cantidadEnDeposito>0?'var(--wa)':'var(--er)'}">${r.cantidadEnDeposito}</td></tr>`;
+        }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:30px">Sin quiebres en el período seleccionado</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('"Góndola" = sin stock en el exhibidor pero sí en depósito (reponible en el momento). "Total" = sin stock ni en góndola ni en depósito.')}
+    </div>`;
+
+  mkChart('ch-quiebrepdv',{type:'bar',data:{labels:porPdvTop.map(p=>p[0]),datasets:[{label:'Quiebres',data:porPdvTop.map(p=>p[1]),backgroundColor:'#e84a55',borderRadius:6,maxBarThickness:22}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(255,255,255,.06)'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  mkChart('ch-quiebreproducto',{type:'bar',data:{labels:porProductoTop.map(p=>p[0]),datasets:[{label:'Quiebres',data:porProductoTop.map(p=>p[1]),backgroundColor:'#e84a55',borderRadius:6,maxBarThickness:22}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(255,255,255,.06)'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  mkChart('ch-quiebrecategoria',{type:'doughnut',data:{labels:porCategoria.map(c=>c.cat),datasets:[{data:porCategoria.map(c=>c.n),backgroundColor:['#7C93A8','#3AAFA0','#9C8FA6','#e8a045'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:11}}}}}});
+
+  mkChart('ch-quiebrecadena',{type:'bar',data:{labels:porCadena.map(c=>c.cadena),datasets:[{label:'Quiebres',data:porCadena.map(c=>c.n),backgroundColor:'#e84a55',borderRadius:6,maxBarThickness:36}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(255,255,255,.06)'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+}
+
+// ============================================================
+// PÁGINA: JORNADA Y ASISTENCIA
+// ============================================================
+function promsDeCiudad(){ return PROMOTERS.filter(p=>!F.ciudad || p.city===F.ciudad); }
+function esDomingoFecha(fecha){ const [y,m,d]=fecha.split('-').map(Number); return new Date(y,m-1,d).getDay()===0; }
+
+function renderJornada(){
+  const fecha = fechaEquipoActual();
+  const esDomingo = esDomingoFecha(fecha);
+  const proms = promsDeCiudad();
+  const promIds = new Set(proms.map(p=>p.id));
+  const total = proms.length;
+  const dayJornadas = JORNADAS.filter(j=>j.fecha===fecha && promIds.has(j.promotorId));
+  const dayAusencias = AUSENCIAS.filter(a=>a.fecha===fecha && promIds.has(a.promotorId));
+  const ausentesIds = new Set(dayAusencias.map(a=>a.promotorId));
+  const presentes = proms.filter(p=>!ausentesIds.has(p.id));
+
+  const tarde = dayJornadas.filter(j=>j.tardanza);
+  const aTiempo = dayJornadas.filter(j=>!j.tardanza);
+  const pctPresentes = total? Math.round(presentes.length/total*100):100;
+  const duraciones = dayJornadas.map(j=>hhmmToMin(j.salida)-hhmmToMin(j.entrada)).filter(d=>d>0);
+  const promDur = duraciones.length? Math.round(duraciones.reduce((s,v)=>s+v,0)/duraciones.length):0;
+  const almExcedidos = dayJornadas.filter(j=>j.almSalida && j.duracionAlmuerzo>LIMITE_ALMUERZO);
+  const sinAlm = dayJornadas.filter(j=>!j.almSalida);
+
+  const BUCKET_MIN = 15;
+  const inicioVentana = ENTRADA_PROG-15; // 07:45, inicio de la ventana real de marcación
+  const nBuckets = 5; // cubre 07:45 a 08:55, ventana real en la que se registran entradas
+  const horasDist = Array(nBuckets).fill(0), horasTarde = Array(nBuckets).fill(0);
+  dayJornadas.forEach(j=>{ const idx=Math.min(nBuckets-1, Math.max(0, Math.floor((hhmmToMin(j.entrada)-inicioVentana)/BUCKET_MIN))); horasDist[idx]++; if(j.tardanza) horasTarde[idx]++; });
+  const horasSlice = horasDist, horasTardeSlice = horasTarde;
+  const horasLabels = horasSlice.map((_,i)=>minToHHMM(inicioVentana+i*BUCKET_MIN));
+
+  const jornadasHist = JORNADAS.filter(j=>promIds.has(j.promotorId));
+  const puntualidadPorPersona = {};
+  jornadasHist.forEach(j=>{ if(!puntualidadPorPersona[j.promotorId]) puntualidadPorPersona[j.promotorId]={total:0,tarde:0}; puntualidadPorPersona[j.promotorId].total++; if(j.tardanza) puntualidadPorPersona[j.promotorId].tarde++; });
+  const rankingPuntualidad = Object.entries(puntualidadPorPersona).map(([id,v])=>({p:promoterById(id), pct:Math.round(100*(1-v.tarde/v.total)), total:v.total})).filter(r=>r.total>=5).sort((a,b)=>b.pct-a.pct);
+  const mejoresPuntuales = rankingPuntualidad.slice(0,3);
+  const peoresPuntuales = [...rankingPuntualidad].sort((a,b)=>a.pct-b.pct).slice(0,3);
+
+  const ultimaJornadaPorPersona = {};
+  jornadasHist.forEach(j=>{ if(!ultimaJornadaPorPersona[j.promotorId]||j.fecha>ultimaJornadaPorPersona[j.promotorId]) ultimaJornadaPorPersona[j.promotorId]=j.fecha; });
+  const diasDesde = fUlt => {
+    if(!fUlt) return null;
+    const [y,m,d]=fUlt.split('-').map(Number), [y2,m2,d2]=fecha.split('-').map(Number);
+    return Math.round((new Date(y2,m2-1,d2)-new Date(y,m-1,d))/86400000);
+  };
+
+  const riesgoAusentismo = proms.map(p=>{
+    const jCount = JORNADAS.filter(j=>j.promotorId===p.id).length;
+    const aCount = AUSENCIAS.filter(a=>a.promotorId===p.id).length;
+    return {p, ausencias:aCount, pct: (jCount+aCount)? Math.round(100*aCount/(jCount+aCount)):0};
+  }).filter(r=>r.ausencias>0).sort((a,b)=>b.ausencias-a.ausencias).slice(0,5);
+
+  const nombreCorto = n => n.split(' ').slice(0,2).join(' ');
+
+  document.getElementById('content').innerHTML = `
+    <div class="fbar" style="padding:10px 18px">
+      <span class="fbar-label"><i class="fas fa-calendar"></i> Fecha exacta</span>
+      <input type="date" id="jornada-dia" class="select-inline" value="${fecha}" min="${FECHA_MIN}" max="${FECHA_MAX}">
+      <button class="tb-btn" id="jornada-export" style="padding:7px 12px"><i class="fas fa-file-export"></i> Exportar</button>
+    </div>
+    ${esDomingo? `<div class="banner"><i class="fas fa-store-slash"></i> Domingo — día no laboral, sin relevamiento.</div>` : `
+    <div class="grid grid-kpi" style="margin-bottom:18px">
+      <div class="kpi" style="background:linear-gradient(135deg, var(--ok-d), var(--bg2) 70%)"><div class="kpi-top"><div class="kpi-lbl">Presentes</div><div class="ico-chip" style="color:var(--ok);background:var(--ok-d)"><i class="fas fa-user-check"></i></div></div><div class="kpi-val" style="color:var(--ok)">${presentes.length}<span style="font-size:14px;font-weight:600;color:var(--tx3)"> / ${total}</span></div><div class="kpi-sub">${pctPresentes}% de nómina</div></div>
+      <div class="kpi" id="kpi-jornada-ausentes" style="cursor:pointer;background:linear-gradient(135deg, var(${dayAusencias.length?'--er-d':'--ok-d'}), var(--bg2) 70%)"><div class="kpi-top"><div class="kpi-lbl">Ausentes</div><div class="ico-chip" style="color:${dayAusencias.length?'var(--er)':'var(--ok)'};background:var(${dayAusencias.length?'--er-d':'--ok-d'})"><i class="fas fa-user-times"></i></div></div><div class="kpi-val" style="color:${dayAusencias.length?'var(--er)':'var(--ok)'}">${dayAusencias.length}</div><div class="kpi-sub">sin marcaciones hoy</div></div>
+      <div class="kpi" id="kpi-jornada-tardanzas" style="cursor:pointer;background:linear-gradient(135deg, var(${tarde.length?'--er-d':'--ok-d'}), var(--bg2) 70%)"><div class="kpi-top"><div class="kpi-lbl">Tardanzas</div><div class="ico-chip" style="color:${tarde.length?'var(--er)':'var(--ok)'};background:var(${tarde.length?'--er-d':'--ok-d'})"><i class="fas fa-clock"></i></div></div><div class="kpi-val" style="color:${tarde.length?'var(--er)':'var(--ok)'}">${tarde.length}</div><div class="kpi-sub">después de 08:10 · ${dayJornadas.length?Math.round(tarde.length/dayJornadas.length*100):0}% de los presentes</div></div>
+      <div class="kpi" style="background:linear-gradient(135deg, var(--bl-d), var(--bg2) 70%)"><div class="kpi-top"><div class="kpi-lbl">Jornada prom.</div><div class="ico-chip" style="color:var(--bl);background:var(--bl-d)"><i class="fas fa-hourglass-half"></i></div></div><div class="kpi-val" style="color:var(--bl);font-size:22px">${Math.floor(promDur/60)}h ${promDur%60}m</div><div class="kpi-sub">en campo</div></div>
+      <div class="kpi" id="kpi-jornada-almuerzo" style="cursor:pointer;background:linear-gradient(135deg, var(${almExcedidos.length?'--er-d':'--ok-d'}), var(--bg2) 70%)"><div class="kpi-top"><div class="kpi-lbl">Alm. excedidos</div><div class="ico-chip" style="color:${almExcedidos.length?'var(--er)':'var(--ok)'};background:var(${almExcedidos.length?'--er-d':'--ok-d'})"><i class="fas fa-exclamation-triangle"></i></div></div><div class="kpi-val" style="color:${almExcedidos.length?'var(--er)':'var(--ok)'}">${almExcedidos.length}</div><div class="kpi-sub">+${sinAlm.length} sin registrar</div></div>
+    </div>
+    ${jornadaFiltroActivo==='tardanzas'?`<div class="tw" style="border:2px solid var(--er);margin-bottom:16px">
+      <div class="tf"><i class="fas fa-clock" style="color:var(--er)"></i><span style="font-weight:700;font-size:13px">Filtrado: Tardanzas — ${tarde.length}</span></div>
+      <div style="padding:6px 0">${tarde.length?tarde.map(j=>`<div style="display:flex;justify-content:space-between;padding:9px 20px;border-bottom:1px solid var(--bd)"><span style="font-size:12.5px;font-weight:600">${nombreCorto(promoterById(j.promotorId).name)}</span><span style="font-size:12px;color:var(--er)"><b>${j.entrada}</b> (+${j.minutosTarde}min)</span></div>`).join(''):'<div style="padding:20px;text-align:center;color:var(--tx3);font-size:12px">Sin tardanzas</div>'}</div>
+    </div>`:''}
+    ${jornadaFiltroActivo==='almuerzo'?`<div class="tw" style="border:2px solid var(--wa);margin-bottom:16px">
+      <div class="tf"><i class="fas fa-utensils" style="color:var(--wa)"></i><span style="font-weight:700;font-size:13px">Filtrado: Alertas de almuerzo — ${almExcedidos.length+sinAlm.length}</span></div>
+      <div style="padding:6px 0">
+        ${almExcedidos.map(j=>`<div style="display:flex;justify-content:space-between;padding:9px 20px;border-bottom:1px solid var(--bd)"><span style="font-size:12.5px;font-weight:600">${nombreCorto(promoterById(j.promotorId).name)}</span><span class="badge er">Excedido: ${j.duracionAlmuerzo}min</span></div>`).join('')}
+        ${sinAlm.map(j=>`<div style="display:flex;justify-content:space-between;padding:9px 20px;border-bottom:1px solid var(--bd)"><span style="font-size:12.5px;font-weight:600">${nombreCorto(promoterById(j.promotorId).name)}</span><span class="badge wa">Sin registrar</span></div>`).join('')}
+        ${!almExcedidos.length&&!sinAlm.length?'<div style="padding:20px;text-align:center;color:var(--tx3);font-size:12px">Sin alertas de almuerzo</div>':''}
+      </div>
+    </div>`:''}
+    ${jornadaFiltroActivo==='ausentes'?`<div class="tw" style="border:2px solid var(--er);margin-bottom:16px">
+      <div class="tf"><i class="fas fa-user-times" style="color:var(--er)"></i><span style="font-weight:700;font-size:13px">Filtrado: Ausentes — ${dayAusencias.length} de ${total}</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Promotor</th><th>Ciudad</th><th>Última marcación</th><th>Días sin marcar</th></tr></thead><tbody>
+      ${dayAusencias.map((a,i)=>{ const p=promoterById(a.promotorId); const ult=ultimaJornadaPorPersona[p.id]; const dias=diasDesde(ult);
+        const diasTxt = dias==null?'Sin registro histórico':dias===0?'Hoy':dias===1?'Ayer':`Hace ${dias} días`;
+        return `<tr><td>${i+1}</td><td style="font-weight:700">${p.name}</td><td>${p.city}</td><td>${ult?dateDisplay(ult):'—'}</td><td><span class="badge er">${diasTxt}</span></td></tr>`;
+      }).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:24px">Sin ausentes</td></tr>`}
+      </tbody></table></div>
+    </div>`:''}
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr" style="align-items:center"><div class="card-title">Cobertura de nómina — ${dateDisplay(fecha)}</div><span style="font-size:24px;font-weight:900;color:${pctPresentes>=85?'var(--ok)':pctPresentes>=60?'var(--wa)':'var(--er)'}">${pctPresentes}%</span></div>
+      <div style="height:14px;border-radius:7px;overflow:hidden;display:flex;gap:2px;margin-bottom:14px">
+        ${aTiempo.length?`<div style="flex:${aTiempo.length};background:var(--ok);border-radius:7px 0 0 7px"></div>`:''}
+        ${tarde.length?`<div style="flex:${tarde.length};background:var(--wa)"></div>`:''}
+        ${dayAusencias.length?`<div style="flex:${dayAusencias.length};background:var(--er);opacity:.5;border-radius:0 7px 7px 0"></div>`:''}
+      </div>
+      <div style="display:flex;gap:16px;font-size:11px;flex-wrap:wrap">
+        <span><span class="dot ok"></span> A tiempo (${aTiempo.length})</span>
+        <span><span class="dot wa"></span> Tarde (${tarde.length})</span>
+        <span style="cursor:pointer" id="jornada-leyenda-ausentes"><span class="dot er"></span> Ausentes (${dayAusencias.length})</span>
+      </div>
+      ${infoTip('% de promotores con marcación de entrada ese día sobre el total de la nómina (filtrada por ciudad, si aplica).')}
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hdr"><div><div class="card-title">Horario de entrada</div><div class="card-sub">Distribución de check-ins · ${dateDisplay(fecha)}</div></div></div>
+      <div class="chart-wrap sm"><canvas id="ch-horas-entry"></canvas></div>
+      ${infoTip('Cantidad de marcaciones de entrada por franja de 15 minutos, separando quienes llegaron a tiempo de quienes llegaron tarde (después de las 08:10).')}
+    </div>
+    <div class="grid grid-2" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div><div class="card-title">Puntualidad del período</div><div class="card-sub">Todo el histórico cargado, no solo ${dateDisplay(fecha)} — para coaching sostenido</div></div></div>
+        <div class="grid grid-2e">
+          <div><div style="font-size:9.5px;font-weight:700;color:var(--ok);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Más puntuales</div>
+            ${mejoresPuntuales.map(r=>`<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--bd)"><span>${nombreCorto(r.p.name)}</span><span style="font-weight:700;color:var(--ok)">${r.pct}%</span></div>`).join('') || `<div style="color:var(--tx3);font-size:11.5px">Sin datos suficientes</div>`}
+          </div>
+          <div><div style="font-size:9.5px;font-weight:700;color:var(--er);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Necesitan acompañamiento</div>
+            ${peoresPuntuales.map(r=>`<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--bd)"><span>${nombreCorto(r.p.name)}</span><span style="font-weight:700;color:var(--er)">${r.pct}%</span></div>`).join('') || `<div style="color:var(--tx3);font-size:11.5px">Sin datos suficientes</div>`}
+          </div>
+        </div>
+        ${infoTip('% de jornadas a tiempo sobre el total histórico registrado, solo promotores con 5+ jornadas cargadas.')}
+      </div>
+      <div class="card"><div class="card-hdr"><div class="card-title">Riesgo de ausentismo</div><div class="card-sub">Más días sin marcar en todo el período cargado</div></div>
+        ${riesgoAusentismo.map(r=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd)"><span style="font-size:11.5px;font-weight:600">${r.p.name}</span><span style="font-weight:700;font-size:11.5px;color:${r.pct>20?'var(--er)':'var(--wa)'}">${r.ausencias} días · ${r.pct}%</span></div>`).join('') || `<div style="color:var(--ok);font-size:12px"><i class="fas fa-check-circle" style="margin-right:5px"></i>Sin ausencias relevantes en el período</div>`}
+        ${infoTip('Top 5 promotores por cantidad de ausencias históricas. % = ausencias ÷ (jornadas + ausencias) del promotor.')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Resumen de asistencia</div><div class="card-sub">${proms.length} promotores · ${dateDisplay(fecha)}</div></div><div style="display:flex;gap:8px">
+        <span class="badge ${dayAusencias.length?'er':'ok'}">${dayAusencias.length} ausentes</span>
+        <span class="badge ${tarde.length?'er':'ok'}">${tarde.length} tardanzas</span>
+        <span class="badge ${almExcedidos.length?'er':'ok'}">${almExcedidos.length} alm. excedidos</span>
+      </div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Promotor</th><th>Entrada</th><th>Checkout</th><th>Jornada</th><th>Estado</th><th>Alm. inicio</th><th>Alm. fin</th><th>Alm. duración</th><th>PDVs</th></tr></thead><tbody>
+        ${proms.map((p,i)=>{
+          const j = dayJornadas.find(x=>x.promotorId===p.id);
+          if(!j) return `<tr><td>${i+1}</td><td style="font-weight:700">${p.name}</td><td colspan="7" style="text-align:center;color:var(--tx3)">Sin marcaciones</td><td><span class="badge er"><i class="fas fa-user-xmark"></i> Ausente</span></td></tr>`;
+          const dur = hhmmToMin(j.salida)-hhmmToMin(j.entrada);
+          const durStr = dur>0? Math.floor(dur/60)+'h '+(dur%60)+'m' : '—';
+          const nPdv = VISITS.filter(v=>v.promotorId===p.id && v.fecha===fecha).length;
+          return `<tr><td>${i+1}</td><td style="font-weight:700">${p.name}</td><td class="mono">${j.entrada}</td><td class="mono">${j.salida}</td><td class="mono" style="color:var(--bl);font-weight:700">${durStr}</td><td>${badgeTardanza(j.minutosTarde)}</td>
+            <td class="mono">${j.almSalida||'—'}</td><td class="mono">${j.almEntrada||'—'}</td>
+            <td class="mono" style="color:${j.duracionAlmuerzo>LIMITE_ALMUERZO?'var(--er)':'var(--ok)'}">${j.almSalida?j.duracionAlmuerzo+'min':'—'}</td>
+            <td style="text-align:center"><span class="badge bl">${nPdv}</span></td></tr>`;
+        }).join('') || `<tr><td colspan="10" style="text-align:center;color:var(--tx3);padding:24px">Sin datos para esta fecha</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('Marcaciones de entrada/salida y almuerzo de cada promotor para la fecha seleccionada. Estado: "a tiempo" si entró antes de las 08:10, "fuera de horario" si entró después.')}
+    </div>`}`;
+
+  document.getElementById('jornada-dia').onchange = e=>{ F.fechaDesde=e.target.value; F.fechaHasta=e.target.value; jornadaFiltroActivo=null; applyFilters(); };
+  document.getElementById('jornada-export').onclick = ()=>exportJornadaCSV(dayJornadas, dayAusencias);
+  if(!esDomingo){
+    document.getElementById('kpi-jornada-tardanzas').onclick = ()=>{ jornadaFiltroActivo = jornadaFiltroActivo==='tardanzas'?null:'tardanzas'; renderJornada(); };
+    document.getElementById('kpi-jornada-almuerzo').onclick = ()=>{ jornadaFiltroActivo = jornadaFiltroActivo==='almuerzo'?null:'almuerzo'; renderJornada(); };
+    document.getElementById('kpi-jornada-ausentes').onclick = ()=>{ jornadaFiltroActivo = jornadaFiltroActivo==='ausentes'?null:'ausentes'; renderJornada(); };
+    const leyenda = document.getElementById('jornada-leyenda-ausentes'); if(leyenda) leyenda.onclick = ()=>{ jornadaFiltroActivo='ausentes'; renderJornada(); };
+    mkChart('ch-horas-entry',{type:'bar',data:{labels:horasLabels,datasets:[{label:'A tiempo',data:horasSlice.map((v,i)=>v-horasTardeSlice[i]),backgroundColor:'#3AAFA0',borderRadius:4},{label:'Tarde',data:horasTardeSlice,backgroundColor:'#e84a55',borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:9}}},y:{stacked:true,beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'},ticks:{stepSize:1}}}}});
+  }
+}
+function exportJornadaCSV(jornadas, ausencias){
+  const header = ['Fecha','Promotor','Ciudad','Entrada','EstadoEntrada','MinutosTarde','AlmuerzoSalida','AlmuerzoEntrada','DuracionAlmuerzo','Salida','EstadoSalida','HorasTrabajadas'];
+  const lineasJornada = jornadas.map(j=>{ const p=promoterById(j.promotorId);
+    return [j.fecha,p.name,p.city,j.entrada,j.tardanza?'Tarde':'A tiempo',j.minutosTarde,j.almSalida||'',j.almEntrada||'',j.duracionAlmuerzo,j.salida,j.cumplioSalida?'Cumplido':'Antes de hora',j.horasTrabajadas].join(',');
+  });
+  const lineasAusencia = ausencias.map(a=>{ const p=promoterById(a.promotorId);
+    return [a.fecha,p.name,p.city,'','Ausente','','','','','','',''].join(',');
+  });
+  const csv = [header.join(','), ...lineasJornada, ...lineasAusencia].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `nova-consumo-asistencia-${isoDate(TODAY)}.csv`;
+  a.click();
+  toast(`${jornadas.length+ausencias.length} registros de asistencia exportados`, 'fa-file-csv');
+}
+
+// ============================================================
+// PÁGINA: COMISIONES
+// ============================================================
+function renderComisiones(){
+  const rows = filterVisits();
+  const jrows = filterJornadas();
+  const omitidas = filterOmitidas();
+  const data = PROMOTERS.map(p=>{
+    const rs = rows.filter(r=>r.promotorId===p.id);
+    const js = jrows.filter(r=>r.promotorId===p.id);
+    const conStock = rs.filter(r=>!r.tieneQuiebre);
+    const quiebres = rs.filter(r=>r.tieneQuiebre).length;
+    const alertas = rs.filter(r=>r.tieneVencidos||r.tieneAveriados).length;
+    const unidadesRepuestas = rs.reduce((a,r)=>a+r.unidadesRepuestas,0);
+    const cobVisitas = coberturaDeVisitas(p.portfolio, rows, omitidas);
+    const tardanzas = js.filter(r=>r.tardanza).length;
+
+    const pcts = {
+      precios: conStock.length? Math.round(conStock.filter(r=>r.cumplePrecioPropio).length/conStock.length*100) : null,
+      rotacion: rs.length? Math.min(100, Math.round(unidadesRepuestas/(rs.length*META_REPOSICION_POR_VISITA)*100)) : null,
+      disponibilidad: rs.length? Math.round((1-quiebres/rs.length)*100) : null,
+      vencimientos: rs.length? Math.round((1-alertas/rs.length)*100) : null,
+      visitas: cobVisitas.esperadas? cobVisitas.cumpl : null,
+      puntualidad: js.length? Math.round((js.length-tardanzas)/js.length*100) : null,
+    };
+    let total = 0;
+    Object.keys(COMISION_KPIS).forEach(k=>{ if(pcts[k]!=null) total += Math.round(COMISION_KPIS[k].monto*pcts[k]/100); });
+    return {p, rs, js, pcts, quiebres, alertas, unidadesRepuestas, tardanzas, visitas:rs.length, total};
+  }).filter(d=>d.visitas>0 || d.js.length>0).sort((a,b)=>b.total-a.total);
+
+  const totalPagar = data.reduce((a,d)=>a+d.total,0);
+  const promedio = data.length? totalPagar/data.length:0;
+  const promPrecios = data.filter(d=>d.pcts.precios!=null);
+  const promPreciosGlobal = promPrecios.length? Math.round(promPrecios.reduce((a,d)=>a+d.pcts.precios,0)/promPrecios.length):0;
+  const quiebresTotal = data.reduce((a,d)=>a+d.quiebres,0);
+  const totalControles = data.reduce((a,d)=>a+d.visitas,0);
+  const medalColor = i => i===0?'#e8a045':i===1?'#9c9494':i===2?'#c07a3a':'var(--bg4)';
+  const cell = (pct) => pct==null? `<td style="text-align:center;color:var(--tx3);font-size:11px">—</td>` : `<td style="text-align:center;font-weight:800;font-size:12.5px;color:${pct>=80?'var(--ok)':pct>=60?'var(--wa)':'var(--er)'}">${pct}%</td>`;
+
+  document.getElementById('content').innerHTML = `
+    <div class="banner"><i class="fas fa-calculator"></i> Comisión de Gs. ${fmtInt(COMISION_TOTAL)} compuesta por 6 KPIs medibles a partir de los datos de campo — sin evaluación subjetiva.</div>
+    <div class="grid grid-kpi" style="margin-bottom:18px">
+      ${kpiCard('Comisión total de la pauta', 0, `${Object.keys(COMISION_KPIS).length} KPIs, 100% medibles con datos de campo`, 'fa-coins', temaActivoIdx===0?'--ok':'--brand2','k-total')}
+      ${kpiCard('Promedio del equipo', 0, `${data.length} promotores con datos en el período`, 'fa-chart-bar', '--ok','k-promedio')}
+      ${kpiCard('Cumplimiento de precio (equipo)', promPreciosGlobal, 'vs. precio público sugerido', 'fa-tag', '--bl','k-precioequipo')}
+      ${kpiCard('Quiebres de stock', quiebresTotal, `de ${totalControles} visitas — ver Quiebres`, 'fa-box-open', quiebresTotal?'--wa':'--ok','k-quiebres','quiebres')}
+    </div>
+    <div class="grid grid-2" style="margin-bottom:16px">
+      <div class="card"><div class="card-hdr"><div class="card-title">Top 10 comisiones del período</div></div>
+        <div class="chart-wrap"><canvas id="ch-comisiones"></canvas></div>
+        ${infoTip('Comisión total estimada por promotor, sumando los 6 KPIs de la pauta según su cumplimiento individual.')}</div>
+      <div class="card"><div class="card-hdr"><div class="card-title">Objetivos a cumplir</div></div>
+        <div style="font-size:12.5px;color:var(--tx2);line-height:2.1">
+          ${Object.entries(COMISION_KPIS).map(([k,v])=>`<div><span class="dot ${k==='precios'?'bl':k==='rotacion'?'vi':k==='disponibilidad'?'ok':k==='vencimientos'?'er':k==='visitas'?'wa':'bl'}"></span> ${v.label}: ${Math.round(v.peso*100)}% · ${fmtGs(v.monto)}</div>`).join('')}
+        </div>
+        ${infoTip('Composición de la pauta de comisión: 6 KPIs medibles con datos de campo, cada uno con su peso (%) y monto máximo en guaraníes.')}</div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Detalle por promotor</div><div class="card-sub">${data.length} repositores con datos en el período</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Promotor</th><th style="text-align:center">Precio (25%)</th><th style="text-align:center">Rotación (20%)</th><th style="text-align:center">Disponib. (15%)</th><th style="text-align:center">Vencim. (15%)</th><th style="text-align:center">Visitas (15%)</th><th style="text-align:center">Puntual. (10%)</th><th style="text-align:center">Comisión</th></tr></thead><tbody>
+      ${data.map((d,i)=>`<tr><td><span class="rank-medal" style="background:${medalColor(i)}">${i+1}</span></td><td style="font-weight:700">${d.p.name}</td>${cell(d.pcts.precios)}${cell(d.pcts.rotacion)}${cell(d.pcts.disponibilidad)}${cell(d.pcts.vencimientos)}${cell(d.pcts.visitas)}${cell(d.pcts.puntualidad)}<td style="text-align:center;font-weight:800" class="mono">${fmtGs(d.total)}</td></tr>`).join('') || `<tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:30px">Sin datos en el período seleccionado</td></tr>`}
+      </tbody></table></div>
+      ${infoTip('% de cumplimiento de cada KPI por promotor (verde ≥80%, amarillo 60-79%, rojo &lt;60%) y la comisión total resultante.')}
+    </div>`;
+
+  document.getElementById('k-total').textContent = fmtGs(totalPagar);
+  document.getElementById('k-promedio').textContent = fmtGs(promedio);
+  animateNum(document.getElementById('k-precioequipo'), promPreciosGlobal, '%');
+  animateNum(document.getElementById('k-quiebres'), quiebresTotal);
+
+  const top10 = data.slice(0,10);
+  mkChart('ch-comisiones',{type:'bar',data:{labels:top10.map(d=>d.p.name.split(' ')[0]),datasets:[{label:'Comisión total',data:top10.map(d=>d.total),backgroundColor:chartAccent(),borderRadius:6,maxBarThickness:30}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmtGs(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'},ticks:{callback:v=>fmtInt(v)}},x:{grid:{display:false},ticks:{font:{size:10.5}}}}}});
+}
+
+// ============================================================
+// PÁGINA: RECORRIDO POR PERSONA
+// ============================================================
+function renderRecorrido(){
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Recorrido del día</div><div class="card-sub">Último día activo del promotor seleccionado</div></div>
+        <select class="select-inline" id="sel-recorrido">${PROMOTERS.map(p=>`<option value="${p.id}" ${p.id===recorridoPromotor?'selected':''}>${p.name} — ${p.city}</option>`).join('')}</select>
+      </div>
+      <div id="map-recorrido"></div>
+      ${infoTip('Secuencia de PDVs visitados el último día con actividad registrada del promotor seleccionado, en orden cronológico según la hora de cada visita.')}
+    </div>
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="card"><div class="card-hdr"><div class="card-title">Paradas del día</div></div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>PDV</th><th>Hora</th><th>Duración</th></tr></thead><tbody id="recorrido-paradas"></tbody></table></div></div>
+      <div class="card"><div class="card-hdr"><div class="card-title">Jornada de ese día</div></div>
+        <div id="recorrido-jornada" style="font-size:12.5px;color:var(--tx2);line-height:2"></div></div>
+    </div>`;
+
+  document.getElementById('sel-recorrido').onchange = e=>{ recorridoPromotor=e.target.value; drawRecorrido(); };
+  drawRecorrido();
+}
+
+function drawRecorrido(){
+  const rowsAll = VISITS.filter(v=>v.promotorId===recorridoPromotor).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const ultimaFecha = rowsAll.length? rowsAll[rowsAll.length-1].fecha : null;
+  const dia = rowsAll.filter(r=>r.fecha===ultimaFecha).sort((a,b)=>a.hora.localeCompare(b.hora));
+
+  if(mapRecorrido){ mapRecorrido.remove(); mapRecorrido=null; }
+  const prom = promoterById(recorridoPromotor);
+  const center = CITY_COORDS[prom.city];
+  mapRecorrido = L.map('map-recorrido',{scrollWheelZoom:false}).setView(center,12.5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(mapRecorrido);
+
+  const latlngs = dia.map(r=>{ const pdv=pdvById(r.pdvId); return [pdv.lat,pdv.lng]; });
+  if(latlngs.length>1) L.polyline(latlngs,{color:chartAccent2(),weight:3,dashArray:'6,6'}).addTo(mapRecorrido);
+  dia.forEach((r,i)=>{
+    const pdv = pdvById(r.pdvId);
+    L.marker([pdv.lat,pdv.lng]).addTo(mapRecorrido).bindPopup(`<b>${i+1}. ${pdv.name}</b><br>${r.hora} · ${r.duracion} min`);
+  });
+  if(latlngs.length) mapRecorrido.fitBounds(latlngs,{padding:[30,30]});
+  setTimeout(()=>mapRecorrido && mapRecorrido.invalidateSize(),150);
+
+  const paradasEl = document.getElementById('recorrido-paradas');
+  if(paradasEl){
+    paradasEl.innerHTML = dia.map((r,i)=>{ const pdv=pdvById(r.pdvId); return `<tr><td>${i+1}</td><td style="font-weight:700">${pdv.name}</td><td class="mono">${r.hora}</td><td class="mono">${r.duracion} min</td></tr>`; }).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:20px">Sin visitas registradas</td></tr>`;
+  }
+  const jornadaEl = document.getElementById('recorrido-jornada');
+  if(jornadaEl){
+    const j = ultimaFecha ? JORNADAS.find(x=>x.promotorId===recorridoPromotor && x.fecha===ultimaFecha) : null;
+    jornadaEl.innerHTML = !ultimaFecha ? `<span style="color:var(--tx3)">Sin datos</span>` : !j
+      ? `<span style="color:var(--er)"><i class="fas fa-user-xmark"></i> Ausente el ${dateDisplay(ultimaFecha)}</span>`
+      : `<div>Fecha: <b>${dateDisplay(ultimaFecha)}</b></div>
+         <div>Entrada: <b class="mono">${j.entrada}</b> ${badgeEntradaEstado(j)}</div>
+         <div>Almuerzo: <b class="mono">${j.almSalida||'—'} → ${j.almEntrada||'—'}</b></div>
+         <div>Salida: <b class="mono">${j.salida}</b> ${badgeSalidaEstado(j)}</div>`;
+  }
+}
+
+// ============================================================
+// NAVEGACIÓN / FILTROS / TEMA
+// ============================================================
+const PAGES = {
+  resumen:{title:'Resumen ejecutivo', icon:'fa-chart-pie', render:renderResumen},
+  cobertura:{title:'Cobertura', icon:'fa-store', render:renderCobertura},
+  precios:{title:'Precios', icon:'fa-tags', render:renderPrecios},
+  auditoria:{title:'Auditoría de punto de venta', icon:'fa-clipboard-check', render:renderAuditoria},
+  evidencias:{title:'Relevamiento fotográfico', icon:'fa-camera', render:renderEvidencias},
+  alertas:{title:'Averiados y Vencimientos', icon:'fa-exclamation-triangle', render:renderAlertas},
+  quiebres:{title:'Quiebres de stock', icon:'fa-box-open', render:renderQuiebres},
+  ofertas:{title:'Ofertas y Promociones', icon:'fa-percent', render:renderOfertas},
+  jornada:{title:'Jornada y Asistencia', icon:'fa-user-clock', render:renderJornada},
+  recorrido:{title:'Recorrido por persona', icon:'fa-route', render:renderRecorrido},
+  comisiones:{title:'Comisiones', icon:'fa-hand-holding-dollar', render:renderComisiones},
+};
+
+function goPage(page){
+  currentPage = page;
+  searchTerm='';
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('active', n.dataset.p===page));
+  document.getElementById('pt-text').textContent = PAGES[page].title;
+  document.getElementById('pt-icon').className = 'fas '+PAGES[page].icon;
+  PAGES[page].render();
+}
+document.getElementById('nav').addEventListener('click', e=>{ const ni=e.target.closest('.ni'); if(ni) goPage(ni.dataset.p); });
+document.getElementById('nav2').addEventListener('click', e=>{ const ni=e.target.closest('.ni'); if(ni) goPage(ni.dataset.p); });
+document.getElementById('nav3').addEventListener('click', e=>{ const ni=e.target.closest('.ni'); if(ni) goPage(ni.dataset.p); });
+
+function renderFbarChips(){
+  const chips=[];
+  if(F.cadena) chips.push(chip(F.cadena, `clearFilter('cadena')`));
+  if(F.ciudad) chips.push(chip(F.ciudad, `clearFilter('ciudad')`));
+  if(F.categoria) chips.push(chip(F.categoria, `clearFilter('categoria')`));
+  if(F.fechaDesde || F.fechaHasta){
+    const lbl = (F.fechaDesde && F.fechaDesde===F.fechaHasta) ? dateDisplay(F.fechaDesde)
+      : `${F.fechaDesde?dateDisplay(F.fechaDesde):dateDisplay(FECHA_MIN)} → ${F.fechaHasta?dateDisplay(F.fechaHasta):dateDisplay(FECHA_MAX)}`;
+    chips.push(chip(lbl, `clearDateRange()`));
+  }
+  document.getElementById('fbar-chips').innerHTML = chips.join('');
+}
+function clearFilter(key){
+  F[key]='';
+  document.getElementById('f-'+key).value='';
+  applyFilters();
+}
+function clearDateRange(){
+  F.fechaDesde=''; F.fechaHasta='';
+  document.getElementById('f-desde').value='';
+  document.getElementById('f-hasta').value='';
+  applyFilters();
+}
+function setDateRange(desde,hasta){
+  F.fechaDesde=desde; F.fechaHasta=hasta;
+  document.getElementById('f-desde').value=desde;
+  document.getElementById('f-hasta').value=hasta;
+  applyFilters();
+}
+function updateBadges(){
+  document.getElementById('nb-alertas').textContent = filterVisits().filter(r=>r.tieneVencidos||r.tieneAveriados).length;
+  const promIds = new Set(promsDeCiudad().map(p=>p.id));
+  const fechaHoy = fechaEquipoActual();
+  document.getElementById('nb-tardanzas').textContent = JORNADAS.filter(j=>j.fecha===fechaHoy && j.tardanza && promIds.has(j.promotorId)).length;
+  document.getElementById('nb-ausentes').textContent = AUSENCIAS.filter(a=>a.fecha===fechaHoy && promIds.has(a.promotorId)).length;
+}
+function applyFilters(){
+  renderFbarChips();
+  updateBadges();
+  PAGES[currentPage].render();
+}
+
+function initFilterOptions(){
+  const selC = document.getElementById('f-cadena');
+  CHAINS.forEach(c=> selC.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
+  const selCi = document.getElementById('f-ciudad');
+  CITIES.forEach(c=> selCi.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
+  const selCat = document.getElementById('f-categoria');
+  CATEGORIES.forEach(c=> selCat.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
+
+  selC.onchange = e=>{ F.cadena=e.target.value; applyFilters(); };
+  selCi.onchange = e=>{ F.ciudad=e.target.value; applyFilters(); };
+  selCat.onchange = e=>{ F.categoria=e.target.value; applyFilters(); };
+
+  const selDesde = document.getElementById('f-desde'), selHasta = document.getElementById('f-hasta');
+  [selDesde,selHasta].forEach(el=>{ el.min=FECHA_MIN; el.max=FECHA_MAX; });
+  selDesde.value = F.fechaDesde; selHasta.value = F.fechaHasta;
+  selDesde.onchange = e=>{ F.fechaDesde=e.target.value; applyFilters(); };
+  selHasta.onchange = e=>{ F.fechaHasta=e.target.value; applyFilters(); };
+
+  document.getElementById('btn-junio').onclick = ()=> setDateRange(`${ANIO_DEMO}-06-01`, `${ANIO_DEMO}-06-30`);
+  document.getElementById('btn-julio').onclick = ()=> setDateRange(`${ANIO_DEMO}-07-01`, `${ANIO_DEMO}-07-31`);
+}
+
+document.getElementById('btn-refresh').onclick = ()=>{
+  const btn = document.getElementById('btn-refresh');
+  btn.querySelector('i').classList.add('fa-spin');
+  setTimeout(()=>{ btn.querySelector('i').classList.remove('fa-spin'); PAGES[currentPage].render(); toast('Datos actualizados'); }, 500);
+};
+document.getElementById('btn-export').onclick = ()=>{
+  const rows = filterVisits();
+  const header = ['Fecha','Hora','Promotor','Supervisor','PDV','Cadena','Ciudad','Categoria','Producto','CumpleCriterios','TienePOP','TienePrecios','TieneVencidos','CantidadVencidos','TieneAveriados','CantidadAveriados','TieneQuiebre','CumplePrecioPropio','UnidadesRepuestas','TienePromocion','PresenciaCompetencia','GondolaPct','EspacioGanado','PrecioSugerido','PrecioNuestro','PrecioCompetidor','AccionCompetencia'];
+  const lines = rows.map(r=>{
+    const pdv=pdvById(r.pdvId), prom=promoterById(r.promotorId);
+    return [r.fecha,r.hora,prom.name,supById(prom.supervisorId).name,pdv.name,pdv.chain,pdv.city,r.categoria,r.producto,r.cumpleCriterios,r.tienePOP,r.tienePrecios,r.tieneVencidos,r.cantidadVencidos,r.tieneAveriados,r.cantidadAveriados,r.tieneQuiebre,r.cumplePrecioPropio,r.unidadesRepuestas,r.tienePromocion,r.presenciaCompetencia,r.gondolaPct,r.espacioGanado,r.precioSugerido,r.precioNuestro,r.precioCompetidor,r.accionCompetencia].join(',');
+  });
+  const csv = [header.join(','), ...lines].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `nova-consumo-relevamiento-${isoDate(TODAY)}.csv`;
+  a.click();
+  toast(`${rows.length} registros exportados`, 'fa-file-csv');
+};
+
+// ---- Selector de color de marca ----
+const THEMES = [
+  {c1:'#C41E24', c2:'#E0272E'},
+  {c1:'#0052cc', c2:'#2f7dff'},
+  {c1:'#1f8a4c', c2:'#33b56a'},
+  {c1:'#6a3fd0', c2:'#8b63e8'},
+  {c1:'#e07b1a', c2:'#f59a3d'},
+];
+function applyTheme(i){
+  const t = THEMES[i];
+  temaActivoIdx = i;
+  document.documentElement.style.setProperty('--brand', t.c1);
+  document.documentElement.style.setProperty('--brand2', t.c2);
+  document.documentElement.style.setProperty('--brand-d', t.c1+'29');
+  document.querySelectorAll('.swatch').forEach((s,idx)=>s.classList.toggle('active', idx===i));
+  PAGES[currentPage].render();
+  toast('Color de marca actualizado');
+}
+function initSwatches(){
+  const wrap = document.getElementById('swatches');
+  THEMES.forEach((t,i)=>{
+    const el = document.createElement('div');
+    el.className = 'swatch'+(i===0?' active':'');
+    el.style.background = `linear-gradient(135deg,${t.c1},${t.c2})`;
+    el.title = 'Aplicar color de marca';
+    el.onclick = ()=>applyTheme(i);
+    wrap.appendChild(el);
+  });
+}
+
+document.getElementById('theme-toggle').onclick = ()=>{
+  document.body.classList.toggle('light');
+  const light = document.body.classList.contains('light');
+  document.getElementById('theme-icon').className = light ? 'fas fa-sun' : 'fas fa-moon';
+  document.getElementById('theme-label').textContent = light ? 'Modo claro' : 'Modo oscuro';
+  PAGES[currentPage].render();
+};
+
+// ============================================================
+// INIT
+// ============================================================
+initFilterOptions();
+initSwatches();
+renderFbarChips();
+updateBadges();
+goPage('resumen');
+</script>
+</body>
+</html>
