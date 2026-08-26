@@ -125,6 +125,7 @@ body.light ::-webkit-scrollbar-thumb{background:rgba(15,20,40,.18)}
 .kpix-amber{background:var(--bg2);--kpix-c:var(--wa);--kpix-cd:var(--wa-d)}
 .kpix-blue{background:var(--bg2);--kpix-c:var(--bl);--kpix-cd:var(--bl-d)}
 .kpix-violet{background:var(--bg2);--kpix-c:var(--vi);--kpix-cd:var(--vi-d)}
+.kpix-red{background:var(--bg2);--kpix-c:var(--er);--kpix-cd:var(--er-d)}
 .kpix-accent{background:var(--bg2);--kpix-c:var(--brand2);--kpix-cd:var(--brand-d)}
 .kpix-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .kpix-lbl{font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--tx2)}
@@ -1435,6 +1436,26 @@ function renderAuditoria(){
   const quiebres = all.filter(r=>r.tieneQuiebre).length;
   const disponibilidad = n? (1-quiebres/n)*100 : 100;
   const cumplePrecioPct = conStock.length? conStock.filter(r=>r.cumplePrecioPropio).length/conStock.length*100 : 0;
+
+  // Detalle de cumplimiento de precio: por categoría/producto, los locales que no cumplen el precio público y cuánto venden (unidades repuestas, como observación)
+  const detalleCumplePrecio = (() => {
+    const porProducto = {};
+    TODOS_PRODUCTOS.forEach(prod=>{
+      const noCumplen = conStock.filter(r=>r.producto===prod && !r.cumplePrecioPropio);
+      if(!noCumplen.length) return;
+      const porPdv = {};
+      noCumplen.forEach(r=>{ if(!porPdv[r.pdvId]) porPdv[r.pdvId]={unidades:0}; porPdv[r.pdvId].unidades += r.unidadesRepuestas; });
+      porProducto[prod] = Object.entries(porPdv).map(([pdvId,v])=>({pdv:pdvById(pdvId), unidades:v.unidades})).sort((a,b)=>b.unidades-a.unidades);
+    });
+    const productos = Object.keys(porProducto).sort((a,b)=>CATEGORIA_DE_PRODUCTO[a].localeCompare(CATEGORIA_DE_PRODUCTO[b])||a.localeCompare(b));
+    if(!productos.length) return `<div style="text-align:center;color:var(--ok);padding:20px"><i class="fas fa-check-circle" style="margin-right:6px"></i>Todos los productos cumplen el precio público en el período</div>`;
+    return `<div class="tbl-wrap" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Categoría</th><th>Producto</th><th>Precio público</th><th>Local que no cumple</th><th>Ventas (obs., unid.)</th></tr></thead><tbody>
+      ${productos.flatMap(prod=>{
+        const locales = porProducto[prod];
+        return locales.map((l,i)=>`<tr>${i===0?`<td rowspan="${locales.length}" style="font-weight:700;vertical-align:top">${CATEGORIA_DE_PRODUCTO[prod]}</td><td rowspan="${locales.length}" style="vertical-align:top">${prod}</td><td rowspan="${locales.length}" class="mono" style="vertical-align:top">${fmtGs(PRECIO_SUGERIDO[prod])}</td>`:''}<td>${l.pdv.name} <span style="color:var(--tx3);font-size:10.5px">(${l.pdv.chain})</span></td><td class="mono">${fmtInt(l.unidades)}</td></tr>`).join('');
+      }).join('')}
+    </tbody></table></div>`;
+  })();
   const promoPct = n? all.filter(r=>r.tienePromocion).length/n*100 : 0;
   const coberturaPct = n? Math.round(100*all.filter(r=>r.cumpleCriterios).length/n) : 0;
   const dominamosPct = n? Math.round(100*all.filter(r=>r.presenciaCompetencia==='Menor').length/n) : 0;
@@ -1479,7 +1500,10 @@ function renderAuditoria(){
       ${kpiCard('Cobertura de criterios', coberturaPct, `${n} relevamientos en el período`, 'fa-clipboard-check', coberturaPct>=85?'--ok':coberturaPct>=60?'--wa':'--er','k-cobertura')}
       ${kpiCard('Participación en góndola', Math.round(gondolaProm), 'promedio del período', 'fa-border-all', '--vi','k-gondola2')}
       ${kpiCard('Disponibilidad de stock', Math.round(disponibilidad), `${quiebres} quiebres detectados`, 'fa-box-open', quiebres?'--wa':'--ok','k-disp')}
-      ${kpiCard('Cumplimiento de precio Nova Consumo', Math.round(cumplePrecioPct), 'vs. precio público sugerido — ver Precios', 'fa-tag', '--bl','k-cumplprecio','precios')}
+      ${kpiX({id:'cumplprecio', variant:cumplePrecioPct>=85?'teal':cumplePrecioPct>=60?'amber':'red', icon:'fa-tag', label:'Cumplimiento de precio Nova Consumo',
+        value:`${Math.round(cumplePrecioPct)}%`, foot:'vs. precio público sugerido',
+        tooltip:'% de visitas sin quiebre de stock donde el precio de Nova Consumo está dentro del ±5% del precio público sugerido.',
+        expandable:true, hint:'Ver locales que no cumplen', detail:detalleCumplePrecio})}
       ${kpiCard('Cumplimiento de promociones', Math.round(promoPct), `de ${n} visitas relevadas`, 'fa-bullhorn', promoPct>=85?'--ok':promoPct>=60?'--wa':'--er','k-promo')}
       ${kpiCard('Estado de materiales', materialesPct, `espacios ${espaciosPct}% + POP ${Math.round(pctPOP)}%`, 'fa-box', materialesPct>=85?'--ok':materialesPct>=60?'--wa':'--er','k-materiales')}
     </div>
@@ -1550,11 +1574,11 @@ function renderAuditoria(){
     </div>`;
 
   document.getElementById('pop-pdv-filtro').onchange = e=>{ auditoriaPdvFiltro=e.target.value; renderAuditoria(); };
+  wireKpiX('cumplprecio');
 
   animateNum(document.getElementById('k-cobertura'), coberturaPct, '%');
   animateNum(document.getElementById('k-gondola2'), Math.round(gondolaProm), '%');
   animateNum(document.getElementById('k-disp'), Math.round(disponibilidad), '%');
-  animateNum(document.getElementById('k-cumplprecio'), Math.round(cumplePrecioPct), '%');
   animateNum(document.getElementById('k-promo'), Math.round(promoPct), '%');
   animateNum(document.getElementById('k-materiales'), materialesPct, '%');
 
