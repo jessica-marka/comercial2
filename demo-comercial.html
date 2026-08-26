@@ -673,6 +673,8 @@ let preciosLocalBusqueda='';
 let preciosLocalClusterFiltro='';
 let alertasTab='todos';
 let auditoriaPdvFiltro='';
+let auditoriaPrecioCategoriaFiltro='';
+let auditoriaPrecioCadenaFiltro='';
 const charts = {};
 let mapCobertura=null, mapRecorrido=null;
 function rangoLabel(){
@@ -830,7 +832,7 @@ function wireKpiX(id){
   if(!el || el.dataset.wired) return;
   el.dataset.wired = '1';
   el.addEventListener('click', e=>{
-    if(e.target.closest('.kpix-info') || e.target.closest('a')) return;
+    if(e.target.closest('.kpix-info') || e.target.closest('a') || e.target.closest('select')) return;
     const abierta = el.classList.toggle('open');
     if(abierta) kpixAbiertas.add(id); else kpixAbiertas.delete(id);
   });
@@ -1447,9 +1449,21 @@ function renderAuditoria(){
 
   // Detalle de cumplimiento de precio: por categoría/producto, los locales que no cumplen el precio público, a qué precio venden y la variación vs. el sugerido
   const detalleCumplePrecio = (() => {
+    const selects = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <select class="select-inline" id="auditoria-precio-categoria">
+        <option value="">Todas las categorías</option>
+        ${CATEGORIES.map(c=>`<option value="${c}" ${auditoriaPrecioCategoriaFiltro===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <select class="select-inline" id="auditoria-precio-cadena">
+        <option value="">Todas las cadenas</option>
+        ${CHAINS.map(c=>`<option value="${c}" ${auditoriaPrecioCadenaFiltro===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+    </div>`;
     const porProducto = {};
-    TODOS_PRODUCTOS.forEach(prod=>{
-      const noCumplen = conStock.filter(r=>r.producto===prod && !r.cumplePrecioPropio);
+    const productosFiltrados = auditoriaPrecioCategoriaFiltro ? TODOS_PRODUCTOS.filter(p=>CATEGORIA_DE_PRODUCTO[p]===auditoriaPrecioCategoriaFiltro) : TODOS_PRODUCTOS;
+    productosFiltrados.forEach(prod=>{
+      let noCumplen = conStock.filter(r=>r.producto===prod && !r.cumplePrecioPropio);
+      if(auditoriaPrecioCadenaFiltro) noCumplen = noCumplen.filter(r=>pdvById(r.pdvId).chain===auditoriaPrecioCadenaFiltro);
       if(!noCumplen.length) return;
       const porPdv = {};
       noCumplen.forEach(r=>{ if(!porPdv[r.pdvId]) porPdv[r.pdvId]={precios:[]}; porPdv[r.pdvId].precios.push(r.precioNuestro); });
@@ -1460,8 +1474,8 @@ function renderAuditoria(){
       }).sort((a,b)=>Math.abs(b.variacion)-Math.abs(a.variacion));
     });
     const productos = Object.keys(porProducto).sort((a,b)=>CATEGORIA_DE_PRODUCTO[a].localeCompare(CATEGORIA_DE_PRODUCTO[b])||a.localeCompare(b));
-    if(!productos.length) return `<div style="text-align:center;color:var(--ok);padding:20px"><i class="fas fa-check-circle" style="margin-right:6px"></i>Todos los productos cumplen el precio público en el período</div>`;
-    return `<div class="tbl-wrap" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Categoría</th><th>Producto</th><th>Precio público</th><th>Local que no cumple</th><th>Precio del local</th><th>Variación</th></tr></thead><tbody>
+    if(!productos.length) return selects + `<div style="text-align:center;color:var(--ok);padding:20px"><i class="fas fa-check-circle" style="margin-right:6px"></i>Ningún producto incumple el precio público con estos filtros</div>`;
+    return selects + `<div class="tbl-wrap" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Categoría</th><th>Producto</th><th>Precio público</th><th>Local que no cumple</th><th>Precio del local</th><th>Variación</th></tr></thead><tbody>
       ${productos.flatMap(prod=>{
         const locales = porProducto[prod];
         return locales.map((l,i)=>`<tr>${i===0?`<td rowspan="${locales.length}" style="font-weight:700;vertical-align:top">${CATEGORIA_DE_PRODUCTO[prod]}</td><td rowspan="${locales.length}" style="vertical-align:top">${prod}</td><td rowspan="${locales.length}" class="mono" style="vertical-align:top">${fmtGs(PRECIO_SUGERIDO[prod])}</td>`:''}<td>${l.pdv.name} <span style="color:var(--tx3);font-size:10.5px">(${l.pdv.chain})</span></td><td class="mono">${fmtGs(l.precioLocal)}</td><td><span class="badge ${l.variacion>0?'er':'wa'}">${l.variacion>0?'+':''}${l.variacion.toFixed(1)}%</span></td></tr>`).join('');
@@ -1587,6 +1601,8 @@ function renderAuditoria(){
 
   document.getElementById('pop-pdv-filtro').onchange = e=>{ auditoriaPdvFiltro=e.target.value; renderAuditoria(); };
   wireKpiX('cumplprecio');
+  document.getElementById('auditoria-precio-categoria').onchange = e=>{ auditoriaPrecioCategoriaFiltro=e.target.value; renderAuditoria(); };
+  document.getElementById('auditoria-precio-cadena').onchange = e=>{ auditoriaPrecioCadenaFiltro=e.target.value; renderAuditoria(); };
 
   animateNum(document.getElementById('k-cobertura'), coberturaPct, '%');
   animateNum(document.getElementById('k-gondola2'), Math.round(gondolaProm), '%');
