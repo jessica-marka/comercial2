@@ -331,6 +331,7 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
       <input type="date" id="f-hasta" class="select-inline">
       <button class="tb-btn" id="btn-junio" style="padding:7px 12px">Junio</button>
       <button class="tb-btn" id="btn-julio" style="padding:7px 12px">Julio</button>
+      <button class="tb-btn" id="btn-agosto" style="padding:7px 12px">Agosto</button>
       <div id="fbar-chips" style="display:flex;gap:8px;flex-wrap:wrap"></div>
     </div>
     <div class="content" id="content"></div>
@@ -2527,6 +2528,7 @@ function initFilterOptions(){
 
   document.getElementById('btn-junio').onclick = ()=> setDateRange(`${ANIO_DEMO}-06-01`, `${ANIO_DEMO}-06-30`);
   document.getElementById('btn-julio').onclick = ()=> setDateRange(`${ANIO_DEMO}-07-01`, `${ANIO_DEMO}-07-31`);
+  document.getElementById('btn-agosto').onclick = ()=> setDateRange(`${ANIO_DEMO}-08-01`, FECHA_MAX<`${ANIO_DEMO}-08-31`?FECHA_MAX:`${ANIO_DEMO}-08-31`);
 }
 
 document.getElementById('btn-refresh').onclick = ()=>{
