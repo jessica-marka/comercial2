@@ -1437,22 +1437,26 @@ function renderAuditoria(){
   const disponibilidad = n? (1-quiebres/n)*100 : 100;
   const cumplePrecioPct = conStock.length? conStock.filter(r=>r.cumplePrecioPropio).length/conStock.length*100 : 0;
 
-  // Detalle de cumplimiento de precio: por categoría/producto, los locales que no cumplen el precio público y cuánto venden (unidades repuestas, como observación)
+  // Detalle de cumplimiento de precio: por categoría/producto, los locales que no cumplen el precio público, a qué precio venden y la variación vs. el sugerido
   const detalleCumplePrecio = (() => {
     const porProducto = {};
     TODOS_PRODUCTOS.forEach(prod=>{
       const noCumplen = conStock.filter(r=>r.producto===prod && !r.cumplePrecioPropio);
       if(!noCumplen.length) return;
       const porPdv = {};
-      noCumplen.forEach(r=>{ if(!porPdv[r.pdvId]) porPdv[r.pdvId]={unidades:0}; porPdv[r.pdvId].unidades += r.unidadesRepuestas; });
-      porProducto[prod] = Object.entries(porPdv).map(([pdvId,v])=>({pdv:pdvById(pdvId), unidades:v.unidades})).sort((a,b)=>b.unidades-a.unidades);
+      noCumplen.forEach(r=>{ if(!porPdv[r.pdvId]) porPdv[r.pdvId]={precios:[]}; porPdv[r.pdvId].precios.push(r.precioNuestro); });
+      porProducto[prod] = Object.entries(porPdv).map(([pdvId,v])=>{
+        const precioLocal = Math.round(v.precios.reduce((a,b)=>a+b,0)/v.precios.length);
+        const variacion = (precioLocal-PRECIO_SUGERIDO[prod])/PRECIO_SUGERIDO[prod]*100;
+        return {pdv:pdvById(pdvId), precioLocal, variacion};
+      }).sort((a,b)=>Math.abs(b.variacion)-Math.abs(a.variacion));
     });
     const productos = Object.keys(porProducto).sort((a,b)=>CATEGORIA_DE_PRODUCTO[a].localeCompare(CATEGORIA_DE_PRODUCTO[b])||a.localeCompare(b));
     if(!productos.length) return `<div style="text-align:center;color:var(--ok);padding:20px"><i class="fas fa-check-circle" style="margin-right:6px"></i>Todos los productos cumplen el precio público en el período</div>`;
-    return `<div class="tbl-wrap" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Categoría</th><th>Producto</th><th>Precio público</th><th>Local que no cumple</th><th>Ventas (obs., unid.)</th></tr></thead><tbody>
+    return `<div class="tbl-wrap" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Categoría</th><th>Producto</th><th>Precio público</th><th>Local que no cumple</th><th>Precio del local</th><th>Variación</th></tr></thead><tbody>
       ${productos.flatMap(prod=>{
         const locales = porProducto[prod];
-        return locales.map((l,i)=>`<tr>${i===0?`<td rowspan="${locales.length}" style="font-weight:700;vertical-align:top">${CATEGORIA_DE_PRODUCTO[prod]}</td><td rowspan="${locales.length}" style="vertical-align:top">${prod}</td><td rowspan="${locales.length}" class="mono" style="vertical-align:top">${fmtGs(PRECIO_SUGERIDO[prod])}</td>`:''}<td>${l.pdv.name} <span style="color:var(--tx3);font-size:10.5px">(${l.pdv.chain})</span></td><td class="mono">${fmtInt(l.unidades)}</td></tr>`).join('');
+        return locales.map((l,i)=>`<tr>${i===0?`<td rowspan="${locales.length}" style="font-weight:700;vertical-align:top">${CATEGORIA_DE_PRODUCTO[prod]}</td><td rowspan="${locales.length}" style="vertical-align:top">${prod}</td><td rowspan="${locales.length}" class="mono" style="vertical-align:top">${fmtGs(PRECIO_SUGERIDO[prod])}</td>`:''}<td>${l.pdv.name} <span style="color:var(--tx3);font-size:10.5px">(${l.pdv.chain})</span></td><td class="mono">${fmtGs(l.precioLocal)}</td><td><span class="badge ${l.variacion>0?'er':'wa'}">${l.variacion>0?'+':''}${l.variacion.toFixed(1)}%</span></td></tr>`).join('');
       }).join('')}
     </tbody></table></div>`;
   })();
