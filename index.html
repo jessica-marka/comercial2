@@ -933,9 +933,9 @@ document.getElementById('modal-photo').onclick = e=>{ if(e.target.id==='modal-ph
 // ============================================================
 // COMPARATIVO MENSUAL (Julio vs. Junio) + Índice de competitividad
 // ============================================================
-function rowsDelMes(mes){
-  const desde = `${ANIO_DEMO}-${pad2(mes)}-01`;
-  const hasta = `${ANIO_DEMO}-${pad2(mes)}-31`;
+function rowsDelMes(mes, anio=ANIO_DEMO){
+  const desde = `${anio}-${pad2(mes)}-01`;
+  const hasta = `${anio}-${pad2(mes)}-31`;
   return VISITS.filter(v=>{
     if(v.fecha<desde || v.fecha>hasta) return false;
     const pdv = pdvById(v.pdvId);
@@ -984,12 +984,12 @@ function indiceCompetitividad(rows){
   const precioScore = diffPrecioProm<=0 ? 100 : Math.max(0,100-diffPrecioProm*4);
   return Math.round(0.4*gondolaProm + 0.3*pctSinAccion + 0.3*precioScore);
 }
-function serieDiariaMes(mes, metricFn){
-  const dias = new Date(ANIO_DEMO, mes, 0).getDate();
+function serieDiariaMes(mes, metricFn, anio=ANIO_DEMO){
+  const dias = new Date(anio, mes, 0).getDate();
   const arr = [];
   for(let d=1; d<=31; d++){
     if(d>dias){ arr.push(null); continue; }
-    const fechaStr = `${ANIO_DEMO}-${pad2(mes)}-${pad2(d)}`;
+    const fechaStr = `${anio}-${pad2(mes)}-${pad2(d)}`;
     const rs = VISITS.filter(v=>{
       if(v.fecha!==fechaStr) return false;
       const pdv = pdvById(v.pdvId);
@@ -1012,18 +1012,18 @@ function metricasMes(rows){
     indice: indiceCompetitividad(rows),
   };
 }
-function deltaBadgePts(actual, anterior){
+function deltaBadgePts(actual, anterior, labelMesAnterior='mes anterior'){
   const d = actual-anterior;
   if(d===0) return `<span class="delta-badge flat"><i class="fas fa-minus"></i> Sin cambios</span>`;
   const up = d>0;
-  return `<span class="delta-badge ${up?'up':'down'}"><i class="fas fa-arrow-${up?'up':'down'}"></i> ${up?'+':''}${d} pts vs. junio</span>`;
+  return `<span class="delta-badge ${up?'up':'down'}"><i class="fas fa-arrow-${up?'up':'down'}"></i> ${up?'+':''}${d} pts vs. ${labelMesAnterior}</span>`;
 }
-function deltaBadgePct(actual, anterior){
-  if(!anterior) return `<span class="delta-badge flat"><i class="fas fa-minus"></i> s/d junio</span>`;
+function deltaBadgePct(actual, anterior, labelMesAnterior='mes anterior'){
+  if(!anterior) return `<span class="delta-badge flat"><i class="fas fa-minus"></i> s/d ${labelMesAnterior}</span>`;
   const d = Math.round((actual-anterior)/anterior*100);
   if(d===0) return `<span class="delta-badge flat"><i class="fas fa-minus"></i> Sin cambios</span>`;
   const up = d>0;
-  return `<span class="delta-badge ${up?'up':'down'}"><i class="fas fa-arrow-${up?'up':'down'}"></i> ${up?'+':''}${d}% vs. junio</span>`;
+  return `<span class="delta-badge ${up?'up':'down'}"><i class="fas fa-arrow-${up?'up':'down'}"></i> ${up?'+':''}${d}% vs. ${labelMesAnterior}</span>`;
 }
 
 // ============================================================
@@ -1102,8 +1102,15 @@ function renderResumen(){
     {label:'Cumplimiento de ejecución', meta:90, real:ejecucionPct},
   ];
 
-  const julio = metricasMes(rowsDelMes(7));
-  const junio = metricasMes(rowsDelMes(6));
+  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const anioMesActual = TODAY.getFullYear();
+  const mesActualNum = TODAY.getMonth()+1;
+  let mesAnteriorNum = mesActualNum-1, anioMesAnterior = anioMesActual;
+  if(mesAnteriorNum===0){ mesAnteriorNum=12; anioMesAnterior=anioMesActual-1; }
+  const nombreMesActual = MESES[mesActualNum-1];
+  const nombreMesAnterior = MESES[mesAnteriorNum-1];
+  const mesActual = metricasMes(rowsDelMes(mesActualNum, anioMesActual));
+  const mesAnterior = metricasMes(rowsDelMes(mesAnteriorNum, anioMesAnterior));
 
   document.getElementById('content').innerHTML = `
     <div class="banner"><i class="fas fa-info-circle"></i> Panel de demostración — toda la información (visitas, PDVs, alertas) es ficticia y se genera en el navegador para fines comerciales.</div>
@@ -1166,19 +1173,19 @@ function renderResumen(){
       </div>
     </div>
     <div class="card" style="margin-bottom:16px">
-      <div class="card-hdr"><div><div class="card-title">Julio vs. Junio</div><div class="card-sub">Comparativo mensual e índice de competitividad</div></div></div>
-      ${infoTip('Índice de competitividad (0-100): pondera participación en góndola, ausencia de acciones agresivas de la competencia y competitividad de precio. La variación compara el valor de julio contra junio.')}
+      <div class="card-hdr"><div><div class="card-title">${nombreMesActual} vs. ${nombreMesAnterior}</div><div class="card-sub">Comparativo mensual e índice de competitividad</div></div></div>
+      ${infoTip(`Índice de competitividad (0-100): pondera participación en góndola, ausencia de acciones agresivas de la competencia y competitividad de precio. La variación compara el valor de ${nombreMesActual.toLowerCase()} contra ${nombreMesAnterior.toLowerCase()}.`)}
       <div class="grid grid-2" style="align-items:stretch">
         <div>
           <div class="roi-lbl" style="margin-bottom:6px">Índice de competitividad<small>Pondera participación en góndola, ausencia de acciones agresivas de la competencia y competitividad de precio</small></div>
-          <div class="impact-hero"><span class="big" style="color:${chartAccent2()}">${julio.indice}</span><span style="color:var(--tx3);font-size:13px">/ 100</span>${deltaBadgePts(julio.indice, junio.indice)}</div>
+          <div class="impact-hero"><span class="big" style="color:${chartAccent2()}">${mesActual.indice}</span><span style="color:var(--tx3);font-size:13px">/ 100</span>${deltaBadgePts(mesActual.indice, mesAnterior.indice, nombreMesAnterior.toLowerCase())}</div>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>Métrica</th><th>Junio</th><th>Julio</th><th>Variación</th></tr></thead><tbody>
-          <tr><td>Visitas</td><td class="mono">${fmtInt(junio.visitas)}</td><td class="mono">${fmtInt(julio.visitas)}</td><td>${deltaBadgePct(julio.visitas, junio.visitas)}</td></tr>
-          <tr><td>PDVs cubiertos</td><td class="mono">${junio.pdvs}</td><td class="mono">${julio.pdvs}</td><td>${deltaBadgePct(julio.pdvs, junio.pdvs)}</td></tr>
-          <tr><td>Cumplimiento</td><td class="mono">${junio.cumplPct}%</td><td class="mono">${julio.cumplPct}%</td><td>${deltaBadgePts(julio.cumplPct, junio.cumplPct)}</td></tr>
-          <tr><td>Góndola</td><td class="mono">${junio.gondolaProm}%</td><td class="mono">${julio.gondolaProm}%</td><td>${deltaBadgePts(julio.gondolaProm, junio.gondolaProm)}</td></tr>
-          <tr><td>Alertas</td><td class="mono">${junio.alertas}</td><td class="mono">${julio.alertas}</td><td>${deltaBadgePct(julio.alertas, junio.alertas)}</td></tr>
+        <div class="tbl-wrap"><table><thead><tr><th>Métrica</th><th>${nombreMesAnterior}</th><th>${nombreMesActual}</th><th>Variación</th></tr></thead><tbody>
+          <tr><td>Visitas</td><td class="mono">${fmtInt(mesAnterior.visitas)}</td><td class="mono">${fmtInt(mesActual.visitas)}</td><td>${deltaBadgePct(mesActual.visitas, mesAnterior.visitas, nombreMesAnterior.toLowerCase())}</td></tr>
+          <tr><td>PDVs cubiertos</td><td class="mono">${mesAnterior.pdvs}</td><td class="mono">${mesActual.pdvs}</td><td>${deltaBadgePct(mesActual.pdvs, mesAnterior.pdvs, nombreMesAnterior.toLowerCase())}</td></tr>
+          <tr><td>Cumplimiento</td><td class="mono">${mesAnterior.cumplPct}%</td><td class="mono">${mesActual.cumplPct}%</td><td>${deltaBadgePts(mesActual.cumplPct, mesAnterior.cumplPct, nombreMesAnterior.toLowerCase())}</td></tr>
+          <tr><td>Góndola</td><td class="mono">${mesAnterior.gondolaProm}%</td><td class="mono">${mesActual.gondolaProm}%</td><td>${deltaBadgePts(mesActual.gondolaProm, mesAnterior.gondolaProm, nombreMesAnterior.toLowerCase())}</td></tr>
+          <tr><td>Alertas</td><td class="mono">${mesAnterior.alertas}</td><td class="mono">${mesActual.alertas}</td><td>${deltaBadgePct(mesActual.alertas, mesAnterior.alertas, nombreMesAnterior.toLowerCase())}</td></tr>
         </tbody></table></div>
       </div>
       <div style="margin-top:18px">
@@ -1232,11 +1239,11 @@ function renderResumen(){
       plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:11}}}},
       scales:{x:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.06)'}},y:{grid:{display:false}}}}});
 
-  const serieJunio = serieDiariaMes(6, rs=>rs.length? Math.round(rs.filter(r=>r.cumpleCriterios).length/rs.length*100) : null);
-  const serieJulio = serieDiariaMes(7, rs=>rs.length? Math.round(rs.filter(r=>r.cumpleCriterios).length/rs.length*100) : null);
+  const serieMesAnterior = serieDiariaMes(mesAnteriorNum, rs=>rs.length? Math.round(rs.filter(r=>r.cumpleCriterios).length/rs.length*100) : null, anioMesAnterior);
+  const serieMesActual = serieDiariaMes(mesActualNum, rs=>rs.length? Math.round(rs.filter(r=>r.cumpleCriterios).length/rs.length*100) : null, anioMesActual);
   mkChart('ch-mesalinea',{type:'line',data:{labels:[...Array(31)].map((_,i)=>i+1),datasets:[
-      {label:'Junio',data:serieJunio,borderColor:'#9c9494',backgroundColor:'transparent',tension:.3,pointRadius:2,spanGaps:true},
-      {label:'Julio',data:serieJulio,borderColor:chartAccent2(),backgroundColor:chartAccent2()+'22',fill:true,tension:.3,pointRadius:2,spanGaps:true},
+      {label:nombreMesAnterior,data:serieMesAnterior,borderColor:'#9c9494',backgroundColor:'transparent',tension:.3,pointRadius:2,spanGaps:true},
+      {label:nombreMesActual,data:serieMesActual,borderColor:chartAccent2(),backgroundColor:chartAccent2()+'22',fill:true,tension:.3,pointRadius:2,spanGaps:true},
     ]},options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{color:getComputedStyle(document.body).color,boxWidth:10,font:{size:11}}}},
       scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,.06)'},title:{display:true,text:'% Cumplimiento',color:getComputedStyle(document.body).color,font:{size:10.5}}},
