@@ -1621,14 +1621,36 @@ function renderPrecios(){
   const precioCompMin = all.length? Math.min(...all.map(r=>r.precioCompetidor)) : 0;
   const precioCompMax = all.length? Math.max(...all.map(r=>r.precioCompetidor)) : 0;
 
+  // Top 2 productos por rotación (unidades repuestas) en cada categoría — mismo ranking para las 4 tarjetas superiores
+  const topRotacionPorCategoria = CATEGORIES.map(cat=>{
+    const productos = (PRODUCTS[cat]||[]).map(prod=>({
+      prod, unid: all.filter(r=>r.producto===prod).reduce((s,r)=>s+r.unidadesRepuestas,0),
+    })).sort((a,b)=>b.unid-a.unid).slice(0,2);
+    return {cat, productos};
+  });
   // Nombre del producto equivalente de un competidor: su propia marca, no la de Nova Consumo
   const nombreProductoCompetidor = (prod, competidor) => prod.replace(/^Nova\s/, competidor+' ');
+  const detalleRotacionHtml = (getPrecio, getNombre) => `<div class="tbl-wrap"><table><thead><tr><th>Categoría</th><th>Producto</th><th>Precio mín.</th><th>Precio máx.</th></tr></thead><tbody>
+    ${topRotacionPorCategoria.flatMap(g=>g.productos.map((p,i)=>{
+      const precio = getPrecio(p.prod);
+      const nombre = getNombre ? getNombre(p.prod) : p.prod;
+      return `<tr>${i===0?`<td rowspan="${g.productos.length}" style="font-weight:700;vertical-align:top">${g.cat}</td>`:''}<td>${nombre}</td><td class="mono">${precio.n?fmtGs(precio.min):'—'}</td><td class="mono">${precio.n?fmtGs(precio.max):'—'}</td></tr>`;
+    })).join('')}
+  </tbody></table></div>`;
+  const detalleNova = detalleRotacionHtml(prod=>{
+    const rs = conStock.filter(r=>r.producto===prod);
+    return {min:rs.length?Math.min(...rs.map(r=>r.precioNuestro)):0, max:rs.length?Math.max(...rs.map(r=>r.precioNuestro)):0, n:rs.length};
+  });
   const statsPorCompetidor = COMPETIDORES.map(nombre=>{
     const rs = all.filter(r=>r.competidorNombre===nombre);
     return {
       nombre, n:rs.length,
       min: rs.length?Math.min(...rs.map(r=>r.precioCompetidor)):0,
       max: rs.length?Math.max(...rs.map(r=>r.precioCompetidor)):0,
+      detalle: detalleRotacionHtml(prod=>{
+        const rp = all.filter(r=>r.producto===prod && r.competidorNombre===nombre);
+        return {min:rp.length?Math.min(...rp.map(r=>r.precioCompetidor)):0, max:rp.length?Math.max(...rp.map(r=>r.precioCompetidor)):0, n:rp.length};
+      }, prod=>nombreProductoCompetidor(prod, nombre)),
     };
   });
 
@@ -1701,11 +1723,13 @@ function renderPrecios(){
     <div class="grid grid-kpi" style="margin-bottom:18px">
       ${kpiX({id:'precio-nova', variant:'teal', icon:'fa-tags', label:'Precio Nova Consumo',
         value:`${fmtGs(precioNuestroMin)} – ${fmtGs(precioNuestroMax)}`, foot:'Rango mín-máx observado en el período',
-        tooltip:'Precio mínimo y máximo de Nova Consumo relevado en todas las visitas del período filtrado.'})}
+        tooltip:'Precio mínimo y máximo de Nova Consumo relevado en todas las visitas del período filtrado.',
+        expandable:true, hint:'Ver top productos por rotación', detail:detalleNova})}
       ${statsPorCompetidor.map((c,i)=>kpiX({id:'precio-comp'+i, variant:VARIANTES_COMPETIDOR[i], icon:'fa-tag', label:c.nombre,
         value: c.n? `${fmtGs(c.min)} – ${fmtGs(c.max)}` : 'Sin datos',
         foot: c.n? `${c.n} relevamientos en el período` : 'Sin relevamientos en el período',
-        tooltip:`Precio mínimo y máximo de ${c.nombre} (competidor) relevado en el período filtrado.`})).join('')}
+        tooltip:`Precio mínimo y máximo de ${c.nombre} (competidor) relevado en el período filtrado.`,
+        expandable:true, hint:'Ver top productos por rotación', detail:c.detalle})).join('')}
     </div>
     <div class="grid grid-2e" style="margin-bottom:16px;align-items:stretch">
       <div class="card">
@@ -1797,6 +1821,9 @@ function renderPrecios(){
   localSearch.oninput = e=>{ preciosLocalBusqueda=e.target.value; renderPrecios(); };
   if(preciosLocalSearchTenidoFoco){ localSearch.focus(); localSearch.selectionStart = localSearch.value.length; }
   document.getElementById('prec-local-cluster').onchange = e=>{ preciosLocalClusterFiltro=e.target.value; renderPrecios(); };
+
+  wireKpiX('precio-nova');
+  statsPorCompetidor.forEach((c,i)=>wireKpiX('precio-comp'+i));
 
   document.getElementById('prec-compara-producto').onchange = e=>{ preciosProductoComparado=e.target.value; renderPrecios(); };
   if(preciosProductoComparado){
